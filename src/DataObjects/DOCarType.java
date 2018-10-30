@@ -1,5 +1,5 @@
 package DataObjects;
 
-public class CarType {
+public class DOCarType {
 
 }
