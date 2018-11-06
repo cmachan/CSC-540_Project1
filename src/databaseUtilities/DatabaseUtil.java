@@ -14,15 +14,17 @@ public class DatabaseUtil {
 	
 	Connection conn = null;
 	
-	public void establishConnection() {
+	public Connection establishConnection() {
 	   try{
 	      Class.forName(CONSTANTS.JDBC_DRIVER);
 	      conn = DriverManager.getConnection(CONSTANTS.dbUrl,CONSTANTS.dbUserName,CONSTANTS.dbPassword);
+	      
 	   }catch(SQLException se){
 	      se.printStackTrace();
 	   }catch(Exception e){
 	      e.printStackTrace();
 	   }
+	   return conn;
 	}
 	
 	public void closeConnection() {
