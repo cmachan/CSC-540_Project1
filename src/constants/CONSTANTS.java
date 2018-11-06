@@ -1,6 +1,9 @@
 package constants;
 
 public class CONSTANTS {
+	/*
+	 * CONSTANTS for Database Connections.
+	 */
 	public static final String dbUserName = "rsethi3";
 	public static final String dbPassword = "200241349";
 	public static final String dbUrl = "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:ORCL01";
