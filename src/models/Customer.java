@@ -8,9 +8,16 @@ public class Customer {
 	String email;
 	long phone;
 	String address;
+	String password;
 	ArrayList<Car> carsOwned;
 	public int getcId() {
 		return cId;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
 	}
 	public ArrayList<Car> getCarsOwned() {
 		return carsOwned;

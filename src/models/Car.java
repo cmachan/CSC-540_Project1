@@ -1,7 +1,9 @@
 package models;
 
+import java.util.Date;
+
 public class Car {
-	int licensePlate;
+	String licensePlate;
 	String make;
 	String model;
 	int makeYear;
@@ -24,14 +26,14 @@ public class Car {
 		this.makeYear = makeYear;
 	}
 	int cId;
-	String dateOfService;
+	Date dateOfService;
 	String lastServiceType;
-	String dateOfPurchase;
+	Date dateOfPurchase;
 	int lastMileage;
-	public int getLicensePlate() {
+	public String getLicensePlate() {
 		return licensePlate;
 	}
-	public void setLicensePlate(int licensePlate) {
+	public void setLicensePlate(String licensePlate) {
 		this.licensePlate = licensePlate;
 	}
 	
@@ -41,10 +43,10 @@ public class Car {
 	public void setcId(int cId) {
 		this.cId = cId;
 	}
-	public String getDateOfService() {
+	public Date getDateOfService() {
 		return dateOfService;
 	}
-	public void setDateOfService(String dateOfService) {
+	public void setDateOfService(Date dateOfService) {
 		this.dateOfService = dateOfService;
 	}
 	public String getLastServiceType() {
@@ -53,10 +55,10 @@ public class Car {
 	public void setLastServiceType(String lastServiceType) {
 		this.lastServiceType = lastServiceType;
 	}
-	public String getDateOfPurchase() {
+	public Date getDateOfPurchase() {
 		return dateOfPurchase;
 	}
-	public void setDateOfPurchase(String dateOfPurchase) {
+	public void setDateOfPurchase(Date dateOfPurchase) {
 		this.dateOfPurchase = dateOfPurchase;
 	}
 	public int getLastMileage() {

@@ -29,12 +29,12 @@ public class CarDao {
 			while (rs.next())
 				{
 				car=new Car();
-				car.setLicensePlate(rs.getInt("LICENSEPLATE"));
+				car.setLicensePlate(rs.getString("LICENSEPLATE"));
 				car.setMake(rs.getString("MAKE"));
 				car.setModel(rs.getString("MODEL"));
 				car.setMakeYear(rs.getInt("YEAR"));
-				car.setDateOfService(rs.getString("DATEOFSERVICE"));
-				car.setDateOfPurchase(rs.getString("DATEOFPURCHASE"));
+				car.setDateOfService(rs.getDate("DATEOFSERVICE"));
+				car.setDateOfPurchase(rs.getDate("DATEOFPURCHASE"));
 				car.setLastServiceType(rs.getString("LASTSERVICETYPE"));
 				car.setLastMileage(rs.getInt("LASTMILEAGE"));
 				
@@ -48,6 +48,43 @@ public class CarDao {
 			e.printStackTrace();
 		}
 		return carsowned;
+	}
+
+	public void registerCar(Car car, Customer customer) {
+		
+		PreparedStatement statement = null;
+		Connection conn=null;
+		String qry = "INSERT INTO CAR VALUES(?,?,?,?,?,?,?)";
+		
+		DatabaseUtil db = new DatabaseUtil();
+		try {
+			conn=db.establishConnection();
+			CarTypeDao carType=new CarTypeDao();
+			statement = conn.prepareStatement(qry);
+			statement.setString(1, car.getLicensePlate());
+			int ctid= carType.getCarType(car.getMake(), car.getModel(), car.getMakeYear());
+			System.out.println(ctid);
+			statement.setInt(2,ctid );
+			statement.setInt(3, car.getcId());
+			java.sql.Date date=car.getDateOfService()==null? null:new java.sql.Date(car.getDateOfService().getTime());
+			statement.setDate(4,  date);
+			statement.setString(5, car.getLastServiceType());
+			statement.setDate(6, new java.sql.Date(car.getDateOfPurchase().getTime()));
+			statement.setInt(7, car.getLastMileage());
+			statement.executeUpdate();
+			
+			if (statement != null) {
+				statement.close();
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			db.closeConnection();
+			
+
+		}
 	}
 
 	

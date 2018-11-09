@@ -1,11 +1,19 @@
 package views;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import constants.CONSTANTS;
+import controllers.CustomerController;
 import models.Car;
 import models.Customer;
+import models.Repair;
+import oracle.jdbc.Const;
 
 public class CustomerView {
 	private static Scanner console = new Scanner(System.in);
@@ -80,6 +88,10 @@ public class CustomerView {
 	            
 	        }
 		
+		if (choice==3) {
+			return CONSTANTS.CUSTOMER_MAIN_MENU;
+		}
+		
 		
 		return CONSTANTS.CUSTOMER_PROFILE+choice;
 		
@@ -132,5 +144,437 @@ public class CustomerView {
 		
 		
 		return CONSTANTS.CUSTOMER_PROFILE;
+	}
+
+	public String updateProfile(Customer customer) {
+		int choice=0;
+		
+		boolean flag=true;
+		while(flag) {
+			try {
+				System.out.println("--------MENU-------");
+				System.out.println("1. Name");
+				System.out.println("2. Address ");
+				System.out.println("3. Phone Number ");
+				System.out.println("4. Password ");
+				System.out.println("5. Go Back ");
+				
+				System.out.print("> Choose 1-5 to enter new value: ");
+				System.out.println(">");
+				try {
+				choice = Integer.parseInt(console.nextLine());
+				}
+				catch(NumberFormatException e) {
+					System.out.println("< Error: Enter Number only ");
+				}
+				if( choice >5|| choice <1) {
+					
+					System.out.println("< Error: Choice not correct, Try again ");
+					
+				}
+				else {
+					switch(choice) {
+					case 1: 
+						System.out.println("> Enter new Name:  ");
+						System.out.println(">");
+						
+						customer.setcName((console.nextLine().trim()));
+						break;
+					case 2: 
+						System.out.println("> Enter new Address:  ");
+						System.out.println(">");
+						customer.setAddress((console.nextLine().trim()));
+						break;	
+					case 3: 
+						System.out.println("> Enter new Phone Number:  ");
+						System.out.println(">");
+						try {
+						customer.setPhone(Long.parseLong(console.nextLine().trim()));
+						}catch(NumberFormatException e) {
+							System.out.println("< Error: Enter Number only ");
+						}
+						break;	
+						
+					case 4: 
+						System.out.println("> Enter new Password:  ");
+						System.out.println(">");
+						customer.setPassword((console.nextLine().trim()));
+						break;	
+					case 5: 
+						flag=false;
+						break;	
+					}
+					
+				}
+		     	
+				
+		     
+			}catch(Exception e) {
+				
+				 System.out.println("< Error: Choice not correct, Try again ");
+				 console.reset();
+			}
+	            
+	        }
+		
+		
+		return CONSTANTS.CUSTOMER_PROFILE;
+		
+	}
+
+	public String registerCar(Customer customer) {
+		int choice=0;
+		String input="";
+		Car car=new Car();
+		car.setcId(customer.getcId());
+		System.out.println("--------Register Car-------");
+		while(input.equals("")) {
+			System.out.println("A. Enter Licence Plate ");
+			System.out.print(">");
+			input=(console.nextLine()).trim();
+			if (input.equals("")){
+				System.out.println("< Error: Licence plate is mandatory ");
+			}
+		}
+		car.setLicensePlate(input);
+		input="";
+		Date date1=null;
+		while(input.equals("")) {
+			System.out.println("B. Enter Purchase date in format-MM/dd/yyyy ");
+			System.out.print(">");
+			input=(console.nextLine()).trim();
+			if (input.equals("")){
+				System.out.println("< Error: Purchase date is mandatory ");
+			}
+			
+			try {
+				date1=new SimpleDateFormat("MM/dd/yyyy").parse(input);  
+			   
+				}
+				catch(ParseException e) {
+					System.out.println("< Error: Date not in correct format ");
+					input="";	
+				}
+		
+		}
+		
+		car.setDateOfPurchase(date1);
+		
+		input="";
+		
+		while(input.equals("")) {
+			System.out.println("C. Enter Make of the car ");
+			System.out.print(">");
+			input=(console.nextLine()).trim();
+			if (input.equals("")){
+				System.out.println("< Error: Make is mandatory ");
+			}
+			
+		}
+		
+		car.setMake(input);
+		
+		input="";
+		
+		while(input.equals("")) {
+			System.out.println("D. Enter Model of the car ");
+			System.out.print(">");
+			input=(console.nextLine()).trim();
+			if (input.equals("")){
+				System.out.println("< Error: Model is mandatory ");
+			}
+			
+		}
+		
+		car.setModel(input);
+		
+		
+		input="";
+		int year=0;
+		while(input.equals("")) {
+			System.out.println("E. Enter Year of the car ");
+			System.out.print(">");
+			input=(console.nextLine()).trim();
+			if (input.equals("")){
+				System.out.println("< Error: Year is mandatory ");
+			}
+			try {
+			 year=Integer.parseInt(input);
+			
+			if (input.length()!=4 || year<1920 || year>Calendar.getInstance().get(Calendar.YEAR) ) {
+				System.out.println("< Error: Year is not correct ");
+				input="";
+				
+			}
+			}catch(NumberFormatException e) {
+				System.out.println("< Error: Year is not correct, should be a number. ");
+			}
+			
+			
+		}
+		
+		car.setMakeYear(year);
+		
+		
+		input="";
+		int mileage=0;
+		while(input.equals("")) {
+			System.out.println("F. Current mileage ");
+			System.out.print(">");
+			input=(console.nextLine()).trim();
+			if (input.equals("")){
+				System.out.println("< Error: mileage is mandatory ");
+			}
+			try {
+				mileage=Integer.parseInt(input);
+			}catch(NumberFormatException e) {
+				System.out.println("< Error: mileage is not correct, should be a number. ");
+			}
+			
+			
+		}
+		
+		car.setLastMileage(mileage);
+		
+		
+		
+		input="";
+		
+			System.out.println("G. Last Service Date ");
+			System.out.print(">");
+			input=(console.nextLine()).trim();
+			if (!input.equals(""))  {
+
+			try {
+				date1=new SimpleDateFormat("MM/dd/yyyy").parse(input);  
+			   
+				}
+				catch(ParseException e) {
+					System.out.println("< Error: Date not in correct format ");
+					input="";	
+				}
+			}
+			
+		
+		
+		car.setDateOfService(input.equals("")?null:date1);
+		
+		
+		
+		
+		System.out.println("--------MENU-------");
+		System.out.println("1. Register ");
+		System.out.println("2. Cancel ");
+		
+		while(true){
+			try {
+				
+				
+				System.out.print(">");
+				
+				choice = Integer.parseInt(console.nextLine());
+				if( choice >2|| choice <1) {
+					
+					System.out.println("< Error: Choice not correct, Try again ");
+					
+				}
+				else {
+					break;
+				}
+		     
+			}catch(Exception e) {
+				
+				 System.out.println("< Error: Choice not correct, Try again ");
+				 console.reset();
+			}
+	            
+	        
+		}
+		
+		
+		if (choice==1) {
+			CustomerController.registerCar(car);
+			System.out.println("Car Registered");
+			
+		}else {
+			System.out.println("Registeration canceled");
+		}
+		
+		
+		return CONSTANTS.CUSTOMER_MAIN_MENU;
+		
+	}
+
+	public String viewServiceMenu() {
+		int choice=0;
+		System.out.println("--------MENU-------");
+		System.out.println("1. View Service History ");
+		System.out.println("2. Schedule Service ");
+		System.out.println("3. Reschedule Service ");
+		System.out.println("4. Go Back ");
+		while(true) {
+			try {
+				
+				
+				System.out.print(">Enter Choice:");
+				
+				choice = Integer.parseInt(console.nextLine());
+				if( choice >4|| choice <1) {
+					
+					System.out.println("< Error: Choice not correct, Try again ");
+					
+				}
+				else {
+					break;
+				}
+		     
+			}catch(Exception e) {
+				
+				 System.out.println("< Error: Choice not correct, Try again ");
+				 console.reset();
+			}
+	            
+	        }
+		
+		if (choice==4) {
+			return CONSTANTS.CUSTOMER_MAIN_MENU;
+		}
+		return CONSTANTS.CUSTOMER_SERVICE+choice;
+		
+	}
+
+	public String viewServiceHistory(ArrayList<Repair> repairs) {
+		int choice=0;
+		
+		System.out.println("--------Service History-------- ");
+		
+		
+		if (repairs.size()==0) {
+			System.out.println("No Service found");
+		}
+		for (int i=0;i<repairs.size();i++) {
+			Repair repair=repairs.get(i);
+			
+			System.out.println("Service ID: "+repair.getInvoiceNumber()+" License Plate: "+repair.getCar().getLicensePlate()+" Service Type: "+repair.getServiceType()+" Mechanic Name: "+
+			repair.getMechanicName()+" Service Start Date/Time: "+repair.getStartTime()+" Service End Date/Time: "+repair.getEndTime	()+
+			" Service Status: "+repair.getStatus());
+			
+		}
+		System.out.println("\n");
+		System.out.println("--------MENU-------");
+		System.out.println("1. Go Back");
+		while(true) {
+			try {
+				System.out.print(">");
+				
+				choice = Integer.parseInt(console.nextLine());
+				if( choice!=1) {
+					
+					System.out.println("< Error: Choice not correct, Try again ");
+					
+				}
+				else {
+					break;
+				}
+		     
+			}catch(Exception e) {
+				
+				 System.out.println("< Error: Choice not correct, Try again ");
+				 console.reset();
+			}
+	            
+	        }
+		
+		
+		return CONSTANTS.CUSTOMER_SERVICE;
+	}
+
+	public String viewServiceSchedule(Customer customer) {
+		int choice=0;
+		String input="";
+		Repair service=new Repair();
+		Car car=new Car();
+		service.setcId(customer.getcId());
+		System.out.println("--------Schedule the service -------");
+		while(input.equals("")) {
+			System.out.println("A. Enter Licence Plate ");
+			System.out.print(">");
+			input=(console.nextLine()).trim();
+			if (input.equals("")){
+				System.out.println("< Error: Licence plate is mandatory ");
+			}
+		}
+		car.setLicensePlate(input);
+		input="";
+		int mileage=0;
+		while(input.equals("")) {
+			System.out.println("B. Enter current mileage of the car ");
+			System.out.print(">");
+			input=(console.nextLine()).trim();
+			if (input.equals("")){
+				System.out.println("< Error: current mileage is mandatory ");
+			}
+			try {
+				mileage=Integer.parseInt(input);
+			}catch(NumberFormatException e) {
+				System.out.println("< Error: mileage is not correct, should be a number. ");
+			}
+			
+			
+		}
+		
+		car.setLastMileage(mileage);
+		
+		input="";
+		
+			System.out.println("G. Select Mechanic Name: ");
+			System.out.print(">");
+			input=(console.nextLine()).trim();
+			
+		service.setMechanicName(input.equals("")?"":input);
+		
+		
+		
+		
+		System.out.println("--------MENU-------");
+		System.out.println("1. Register ");
+		System.out.println("2. Cancel ");
+		
+		while(true){
+			try {
+				
+				
+				System.out.print(">");
+				
+				choice = Integer.parseInt(console.nextLine());
+				if( choice >2|| choice <1) {
+					
+					System.out.println("< Error: Choice not correct, Try again ");
+					
+				}
+				else {
+					break;
+				}
+		     
+			}catch(Exception e) {
+				
+				 System.out.println("< Error: Choice not correct, Try again ");
+				 console.reset();
+			}
+	            
+	        
+		}
+		
+		
+		if (choice==1) {
+			CustomerController.registerCar(car);
+			System.out.println("Car Registered");
+			
+		}else {
+			System.out.println("Registeration canceled");
+		}
+		
+		
+		return CONSTANTS.CUSTOMER_MAIN_MENU;
 	}
 }

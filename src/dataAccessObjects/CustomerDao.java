@@ -45,6 +45,38 @@ public class CustomerDao {
 		return customer;
 		
 	}
+
+	public void updateCustomerProfile(Customer customer) {
+		PreparedStatement statement = null;
+		Connection conn=null;
+		String qry = "UPDATE CUSTOMER set CNAME = ? , EMAIL = ? , PHONE = ? , ADDRESS = ? WHERE CID = ?";
+		
+		DatabaseUtil db = new DatabaseUtil();
+		try {
+			conn=db.establishConnection();
+		
+			statement = conn.prepareStatement(qry);
+			statement.setString(1, customer.getcName());
+			statement.setString(2, customer.getEmail());
+			statement.setLong(3, customer.getPhone());
+			statement.setString(4, customer.getAddress());
+			statement.setInt(5, customer.getcId());
+			statement.executeUpdate();
+			
+			if (statement != null) {
+				statement.close();
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			db.closeConnection();
+			
+
+		}
+		
+	}
 	
 	
 }
