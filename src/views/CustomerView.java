@@ -10,8 +10,10 @@ import java.util.Scanner;
 
 import constants.CONSTANTS;
 import controllers.CustomerController;
+import dataAccessObjects.EmployeeDao;
 import models.Car;
 import models.Customer;
+import models.Employee;
 import models.Repair;
 import oracle.jdbc.Const;
 
@@ -518,27 +520,62 @@ public class CustomerView {
 				mileage=Integer.parseInt(input);
 			}catch(NumberFormatException e) {
 				System.out.println("< Error: mileage is not correct, should be a number. ");
+				input="";
 			}
 			
 			
 		}
 		
 		car.setLastMileage(mileage);
-		
+		service.setCar(car);
 		input="";
-		
-			System.out.println("G. Select Mechanic Name: ");
-			System.out.print(">");
-			input=(console.nextLine()).trim();
+		EmployeeDao empDao=new EmployeeDao();
+		ArrayList<Employee> mechanics=empDao.getAllMechanic();
+		System.out.println("G. Select Mechanic (Enter 1-"+mechanics.size()+"): ");
+		for (int i =0;i<mechanics.size();i++) {
 			
-		service.setMechanicName(input.equals("")?"":input);
+			System.out.println(i+". "+mechanics.get(i).geteName());
+		}
+		int mechanic=0;
+		while(true){
+			try {
+				
+				
+				System.out.print(">");
+				input=console.nextLine().trim();
+				if (input.equals("")){
+					break;
+				}
+				mechanic = Integer.parseInt(input);
+				if( mechanic >mechanics.size()|| mechanic <1) {
+					
+					System.out.println("< Error: Mechanic selected not correct, Try again ");
+					
+				}
+				else {
+					break;
+				}
+		     
+			}catch(Exception e) {
+				
+				 System.out.println("< Error: Mechanic selected not correct, Enter the number. ");
+				 console.reset();
+			}
+			
+		}
+		if( !input.equals("")){
+			service.setMechanicName(mechanics.get(mechanic).geteName());
+			service.setMechanicId(mechanics.get(mechanic).geteId());
+		}
 		
 		
 		
 		
 		System.out.println("--------MENU-------");
-		System.out.println("1. Register ");
-		System.out.println("2. Cancel ");
+		System.out.println("1. Schedule Maintenance ");
+		System.out.println("2. Schedule Repair ");
+		
+		System.out.println("3. Go Back ");
 		
 		while(true){
 			try {
@@ -547,7 +584,7 @@ public class CustomerView {
 				System.out.print(">");
 				
 				choice = Integer.parseInt(console.nextLine());
-				if( choice >2|| choice <1) {
+				if( choice >3|| choice <1) {
 					
 					System.out.println("< Error: Choice not correct, Try again ");
 					
@@ -567,14 +604,25 @@ public class CustomerView {
 		
 		
 		if (choice==1) {
-			CustomerController.registerCar(car);
-			System.out.println("Car Registered");
+			viewScheduleMaintenance(service);
 			
-		}else {
-			System.out.println("Registeration canceled");
+		}else if(choice==2) {
+			viewScheduleRepair(service);
+			
+			
 		}
 		
 		
 		return CONSTANTS.CUSTOMER_MAIN_MENU;
+	}
+
+	private void viewScheduleRepair(Repair service) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void viewScheduleMaintenance(Repair service) {
+		// TODO Auto-generated method stub
+		
 	}
 }
