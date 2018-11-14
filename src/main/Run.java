@@ -1,14 +1,13 @@
 package main;
 
-import dataAccessObjects.CustomerDao;
-import dataAccessObjects.Mech_HoursDao;
+import dataAccessObjects.Car_OrderDao;
 
 public class Run {
 	public static void main(String args[]) throws Exception {
-		CustomerDao obj = new CustomerDao(1, "Utkarsh", "utk@ncsu.edu", Long.parseLong("9193211234"), "Avent Ferry");
-//		Mech_HoursDao obj = new Mech_HoursDao(1);
+		Car_OrderDao obj = new Car_OrderDao(1, "2018-01-01", 4 , 1, 1 , "Transit" , 1 , "R" , 1);
 		obj.insert();
-//		obj.setHours(15);
+//		Car_OrderDao obj = new Car_OrderDao(1);
+//		obj.setQty(7);
 //		obj.update();
 //		obj.delete();
 	}
