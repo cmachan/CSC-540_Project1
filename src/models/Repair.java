@@ -7,6 +7,7 @@ public class Repair {
 	int rId;
 	int cId;
 	float fees;
+	
 	Car car;
 	int mechanicId;
 	String faults;

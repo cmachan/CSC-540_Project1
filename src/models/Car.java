@@ -25,11 +25,18 @@ public class Car {
 	public void setMakeYear(int makeYear) {
 		this.makeYear = makeYear;
 	}
+	public int getNewMileage() {
+		return newMileage;
+	}
+	public void setNewMileage(int newMileage) {
+		this.newMileage = newMileage;
+	}
 	int cId;
 	Date dateOfService;
 	String lastServiceType;
 	Date dateOfPurchase;
 	int lastMileage;
+	int newMileage;
 	public String getLicensePlate() {
 		return licensePlate;
 	}

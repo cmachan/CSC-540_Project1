@@ -1,11 +1,35 @@
 package models;
 
+import java.util.Date;
+
 public class Employee {
 	int eId;
 	String eName;
 	String email;
 	long phone;
 	int serviceCenter;
+	Date sDate;
+	Date startTime;
+	Date endTime;
+	
+	public Date getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(java.util.Date date2) {
+		this.startTime = date2;
+	}
+	public Date getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+	public Date getsDate() {
+		return sDate;
+	}
+	public void setsDate(Date sDate) {
+		this.sDate = sDate;
+	}
 	public int geteId() {
 		return eId;
 	}

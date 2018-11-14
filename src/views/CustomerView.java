@@ -19,6 +19,15 @@ import oracle.jdbc.Const;
 
 public class CustomerView {
 	private static Scanner console = new Scanner(System.in);
+	private static CustomerController controller;
+	
+	public static CustomerController getController() {
+		return controller;
+	}
+
+	public void setController(CustomerController controller) {
+		CustomerView.controller = controller;
+	}
 
 	public String displayMainMenu() {
 		
@@ -395,7 +404,7 @@ public class CustomerView {
 		
 		
 		if (choice==1) {
-			CustomerController.registerCar(car);
+			controller.registerCar(car);
 			System.out.println("Car Registered");
 			
 		}else {
@@ -458,7 +467,7 @@ public class CustomerView {
 			Repair repair=repairs.get(i);
 			
 			System.out.println("Service ID: "+repair.getInvoiceNumber()+" License Plate: "+repair.getCar().getLicensePlate()+" Service Type: "+repair.getServiceType()+" Mechanic Name: "+
-			repair.getMechanicName()+" Service Start Date/Time: "+repair.getStartTime()+" Service End Date/Time: "+repair.getEndTime	()+
+			repair.getMechanicName()+" Service Start Date/Time: "+repair.getRdate()+" "+repair.getStartTime()+" Service End Date/Time: "+repair.getRdate()+" "+ repair.getEndTime	()+
 			" Service Status: "+repair.getStatus());
 			
 		}
@@ -495,6 +504,7 @@ public class CustomerView {
 		int choice=0;
 		String input="";
 		Repair service=new Repair();
+		service.setCenterId(1);
 		Car car=new Car();
 		service.setcId(customer.getcId());
 		System.out.println("--------Schedule the service -------");
@@ -507,6 +517,7 @@ public class CustomerView {
 			}
 		}
 		car.setLicensePlate(input);
+		car.setcId(customer.getcId());
 		input="";
 		int mileage=0;
 		while(input.equals("")) {
@@ -526,7 +537,7 @@ public class CustomerView {
 			
 		}
 		
-		car.setLastMileage(mileage);
+		car.setNewMileage(mileage);
 		service.setCar(car);
 		input="";
 		EmployeeDao empDao=new EmployeeDao();
@@ -534,7 +545,7 @@ public class CustomerView {
 		System.out.println("G. Select Mechanic (Enter 1-"+mechanics.size()+"): ");
 		for (int i =0;i<mechanics.size();i++) {
 			
-			System.out.println(i+". "+mechanics.get(i).geteName());
+			System.out.println((i+1) +". "+mechanics.get(i).geteName());
 		}
 		int mechanic=0;
 		while(true){
@@ -564,8 +575,8 @@ public class CustomerView {
 			
 		}
 		if( !input.equals("")){
-			service.setMechanicName(mechanics.get(mechanic).geteName());
-			service.setMechanicId(mechanics.get(mechanic).geteId());
+			service.setMechanicName(mechanics.get(mechanic-1).geteName());
+			service.setMechanicId(mechanics.get(mechanic-1).geteId());
 		}
 		
 		
@@ -604,25 +615,144 @@ public class CustomerView {
 		
 		
 		if (choice==1) {
-			viewScheduleMaintenance(service);
+			viewScheduleMaintenance(service,customer);
 			
 		}else if(choice==2) {
-			viewScheduleRepair(service);
+			viewScheduleRepair(service,customer);
 			
 			
 		}
 		
 		
-		return CONSTANTS.CUSTOMER_MAIN_MENU;
+		return CONSTANTS.CUSTOMER_SERVICE;
 	}
 
-	private void viewScheduleRepair(Repair service) {
-		// TODO Auto-generated method stub
+	private void viewScheduleRepair(Repair service, Customer customer) {
+
+		
 		
 	}
 
-	private void viewScheduleMaintenance(Repair service) {
-		// TODO Auto-generated method stub
+	private void viewScheduleMaintenance(Repair service, Customer customer) {
+		System.out.println("--------Schedule Maintenance-------");
+		System.out.println("1. Find Service Date ");
+		System.out.println("2. Go Back");
+		int choice=0;
 		
+		while(true){
+			try {
+				
+				
+				System.out.print(">");
+				
+				choice = Integer.parseInt(console.nextLine());
+				if( choice >2|| choice <1) {
+					
+					System.out.println("< Error: Choice not correct, Try again ");
+					
+				}
+				else {
+					break;
+				}
+		     
+			}catch(Exception e) {
+				
+				 System.out.println("< Error: Choice not correct, Try again ");
+				 console.reset();
+			}
+	            
+	        
+		}
+		
+		
+		if (choice==1) {
+			if (controller.validateCar(service)) {
+				ArrayList<Employee> mechanics=controller.findDates(service);
+				viewScheduleMaintenance2(service,mechanics,customer);
+			}
+			
+			
+		}else if(choice==2) {
+			viewScheduleRepair(service,customer);
+			
+			
+		}
+		
+	}
+
+	private void viewScheduleMaintenance2(Repair service, ArrayList<Employee> mechanics, Customer customer) {
+		// TODO Auto-generated method stub
+		System.out.println("--------Schedule Maintenance Page2-------");
+		for (int i=0;i<mechanics.size();i++) {
+			System.out.println((i+1)+" Date:  "+mechanics.get(i).getStartTime()+" - "+mechanics.get(i).getEndTime());
+		}
+		
+		System.out.println("-------Menu------");
+		System.out.println("1. Schedule on Date ");
+		System.out.println("2. Go Back");
+		int choice=0;
+		
+		while(true){
+			try {
+				
+				
+				System.out.print(">");
+				
+				choice = Integer.parseInt(console.nextLine());
+				if( choice >2|| choice <1) {
+					
+					System.out.println("< Error: Choice not correct, Try again ");
+					
+				}
+				else {
+					break;
+				}
+		     
+			}catch(Exception e) {
+				
+				 System.out.println("< Error: Choice not correct, Try again ");
+				 console.reset();
+			}
+	            
+	        
+		}
+		
+		
+		if (choice==1) {
+			int dateSelected=0;
+			
+			while(true){
+				try {
+					
+					
+					System.out.print(">Choose the date(1/2)");
+					
+					dateSelected = Integer.parseInt(console.nextLine());
+					if( dateSelected >2|| dateSelected <1) {
+						
+						System.out.println("< Error: Choice not correct, Try again ");
+						
+					}
+					else {
+						break;
+					}
+			     
+				}catch(Exception e) {
+					
+					 System.out.println("< Error: Choice not correct, Try again ");
+					 console.reset();
+				}
+		            
+		        
+			}
+			
+			controller.saveMaintenance(service,mechanics.get(dateSelected-1));
+			viewServiceSchedule(customer);
+			
+		}else if(choice==2) {
+			viewScheduleMaintenance(service,customer);
+			
+			
+		}
 	}
 }

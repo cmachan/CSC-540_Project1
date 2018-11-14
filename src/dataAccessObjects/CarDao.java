@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import databaseUtilities.DatabaseUtil;
 import models.Car;
@@ -37,6 +38,7 @@ public class CarDao {
 				car.setDateOfPurchase(rs.getDate("DATEOFPURCHASE"));
 				car.setLastServiceType(rs.getString("LASTSERVICETYPE"));
 				car.setLastMileage(rs.getInt("LASTMILEAGE"));
+				car.setcId(id);
 				
 				carsowned.add(car);
 		
@@ -85,6 +87,71 @@ public class CarDao {
 			
 
 		}
+	}
+
+	public Car getCar(String licensePlate, int consumerId) {
+		PreparedStatement statement = null;
+		Car  car=null;
+		String qry = "SELECT * FROM CAR c"
+				+ "  WHERE c.LICENSEPLATE = ? and c.CID=? " ;
+		DatabaseUtil db = new DatabaseUtil();
+		try {
+			Connection conn=db.establishConnection();
+		
+			statement = conn.prepareStatement(qry);
+			statement.setString(1, licensePlate);
+			statement.setInt(2, consumerId);
+			ResultSet rs = statement.executeQuery();
+			
+			
+			if (rs.next())
+				{
+				car=new Car();
+				car.setLicensePlate(rs.getString("LICENSEPLATE"));
+				car.setDateOfService(rs.getDate("DATEOFSERVICE"));
+				car.setDateOfPurchase(rs.getDate("DATEOFPURCHASE"));
+				car.setLastServiceType(rs.getString("LASTSERVICETYPE"));
+				car.setLastMileage(rs.getInt("LASTMILEAGE"));
+				car.setcId(consumerId);
+				
+		
+				}
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return car;
+	}
+
+	public void updateCar(Car car, String serviceType, Date date) {
+				PreparedStatement statement = null;
+				Connection conn=null;
+				String qry = "UPDATE CAR set LASTMILEAGE = ?, DATEOFSERVICE=?, LASTSERVICETYPE=?  WHERE LICENSEPLATE = ?";
+				DatabaseUtil db = new DatabaseUtil();
+				try {
+					conn=db.establishConnection();
+					
+					statement = conn.prepareStatement(qry);
+					statement.setInt(1, car.getNewMileage());
+					statement.setDate(2, new java.sql.Date( date.getTime() ));
+					statement.setString(3,serviceType);
+					statement.setString(4,car.getLicensePlate());
+					statement.executeUpdate();
+					
+					if (statement != null) {
+						statement.close();
+					}
+
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}finally {
+					db.closeConnection();
+					
+
+				}
 	}
 
 	

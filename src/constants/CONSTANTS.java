@@ -18,4 +18,5 @@ public class CONSTANTS {
 	public static final String  CUSTOMER_INVOICE= CONSTANTS.CUSTOMER_MAIN_MENU+"4";
 	public static final String  CUSTOMER_LOGOUT= CONSTANTS.CUSTOMER_MAIN_MENU+"5";
 	public static final String  CUSTOMER_UPDATE_PROFILE = CONSTANTS.CUSTOMER_PROFILE+"2";
+	public static final String STATUS_PENDING = "pending";
 }
