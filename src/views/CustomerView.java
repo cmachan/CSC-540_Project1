@@ -36,7 +36,7 @@ public class CustomerView {
 		System.out.println("1. Profile");
 		System.out.println("2. Register Car");
 		System.out.println("3. Service");
-		System.out.println("4.  Invoices");
+		System.out.println("4. Invoices");
 		System.out.println("5. Logout");
 		
 		while(true) {

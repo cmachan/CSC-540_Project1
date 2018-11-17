@@ -45,7 +45,7 @@ public class PayrollDao {
 	void populate() throws Exception{
 		DatabaseUtil db = new DatabaseUtil();
 		db.establishConnection();
-		ArrayList<String> res = db.getAll("EMP_SERVICE", "EID", Integer.toString(this.eId), true);
+		ArrayList<String> res = db.getAll("PAYROLL", "EID", Integer.toString(this.eId), true);
 		
 		if(res.size() == 0)
 			throw new Exception("Object Doesn't exists in the database");
