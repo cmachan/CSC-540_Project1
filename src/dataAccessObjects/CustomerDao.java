@@ -45,6 +45,36 @@ public class CustomerDao {
 		return customer;
 		
 	}
+	
+	/*
+	 * Added by Rahul for Employee Module
+	 */
+	public Customer getCustomerProfileByEmail(String email) {
+		PreparedStatement statement = null;
+		Customer  customer=null;
+		String qry = "SELECT * FROM CUSTOMER  WHERE email = '" + email +"'";
+		DatabaseUtil db = new DatabaseUtil();
+		try {
+			Connection conn=db.establishConnection();
+		
+			statement = conn.prepareStatement(qry);
+			ResultSet rs = statement.executeQuery();
+			
+			
+			if (rs.next())
+			{
+				customer=new Customer(rs.getInt("CID"));
+				customer.setAddress(rs.getString("ADDRESS"));
+				customer.setcName(rs.getString("CNAME"));
+				customer.setEmail(rs.getString("EMAIL"));
+				customer.setPhone(rs.getLong("PHONE"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return customer;
+	}
 
 	public void updateCustomerProfile(Customer customer) {
 		PreparedStatement statement = null;

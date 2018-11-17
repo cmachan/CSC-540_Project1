@@ -50,7 +50,7 @@ public class DatabaseUtil {
 				query = "SELECT * FROM " + tableName + " WHERE " + colName + " = '" + val + "'";
 			
 			rs = st.executeQuery(query);
-			System.out.println("Query Executed: " + query);
+//			System.out.println("Query Executed: " + query);
 			metaData = rs.getMetaData(); 
 			int colCount = metaData.getColumnCount();
 			while (rs.next()) {
@@ -82,7 +82,7 @@ public class DatabaseUtil {
 		try {
 			st = conn.createStatement();
 			st.executeUpdate(query);
-			System.out.println("Query Executed: " + query);
+//			System.out.println("Query Executed: " + query);
 			st.close();
 		}catch(SQLException e) {
 			e.printStackTrace();

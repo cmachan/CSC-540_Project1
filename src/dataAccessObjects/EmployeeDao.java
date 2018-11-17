@@ -3,7 +3,9 @@ package dataAccessObjects;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -262,5 +264,66 @@ public class EmployeeDao {
 
 		}
 		
+	}
+	
+	public void updateEmployee(Employee emp) {
+		DatabaseUtil db = new DatabaseUtil();
+		Connection conn;
+		conn = db.establishConnection();
+		Statement st = null;
+		String qry = "UPDATE EMPLOYEE set ADDRESS = '" + emp.getAddress() + "' , ENAME = '" + emp.geteName() + "' , EMAIL = '" + emp.getEmail() + "' , PHONE = " + emp.getPhone() + " WHERE EID = " + emp.geteId();
+		try {
+			st = conn.createStatement();
+			st.executeUpdate(qry);
+			st.close();
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+				try {
+					if(st != null)
+						st.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+		}
+	}
+	
+	public Employee getEmployeeProfile(int id) {
+		Employee emp = new Employee();
+		DatabaseUtil db = new DatabaseUtil();
+		Connection conn;
+		conn = db.establishConnection();
+		ResultSet rs = null;
+		Statement st = null;
+		String query = "select E.eid , E.ename , E.address ,  E.email , E.phone , ES.servicecenterid , P.startdate from EMPLOYEE E , EMP_SERVICE ES , PAYROLL P where E.eid = ES.eid and ES.eid = P.eid and E.eid = " + id;
+		try {
+			st = conn.createStatement();
+			rs = st.executeQuery(query);
+			if(rs.next()) {
+				emp.seteId(rs.getInt(1));
+				emp.seteName(rs.getString(2));
+				emp.setAddress(rs.getString(3));
+				emp.setEmail(rs.getString(4));
+				emp.setPhone(rs.getLong(5));
+				emp.setServiceCenter(rs.getInt(6));
+				emp.setsDate(rs.getDate(7));
+			}
+			rs.close();
+			st.close();
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+				try {
+					if(rs != null)
+						rs.close();
+					
+					if(st != null)
+						st.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+		}
+		
+		return emp;
 	}
 }

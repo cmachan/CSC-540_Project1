@@ -7,6 +7,13 @@ public class Car {
 	String make;
 	String model;
 	int makeYear;
+	int cId;
+	Date dateOfService;
+	String lastServiceType;
+	Date dateOfPurchase;
+	int lastMileage;
+	int newMileage;
+
 	public String getMake() {
 		return make;
 	}
@@ -31,12 +38,7 @@ public class Car {
 	public void setNewMileage(int newMileage) {
 		this.newMileage = newMileage;
 	}
-	int cId;
-	Date dateOfService;
-	String lastServiceType;
-	Date dateOfPurchase;
-	int lastMileage;
-	int newMileage;
+	
 	public String getLicensePlate() {
 		return licensePlate;
 	}
