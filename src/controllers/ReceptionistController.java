@@ -57,10 +57,10 @@ public class ReceptionistController {
 		String email;
 		email = scan.nextLine();
 		view.viewServiceHistory(email);
-		serviceHistoryController();
+		goBackController();
 	}
 	
-	public void serviceHistoryController() {
+	public void goBackController() {
 		System.out.println("\n1. Go Back");
 		System.out.print("Enter Choice(1): ");
 		int choice;
@@ -69,8 +69,8 @@ public class ReceptionistController {
 		if(choice == 1) {
 			view.displayReceptionistMainMenu();
 		}else {
-			System.out.println("Invalid Inpput");
-			serviceHistoryController();
+			System.out.println("Invalid Input");
+			goBackController();
 		}
 		
 	}
@@ -154,10 +154,10 @@ public class ReceptionistController {
 				
 				break;
 			case CONSTANTS.RECPTIONIST_UPDATE_INVENTORY:
-				
+				updateInventory();
 				break;
 			case CONSTANTS.RECPTIONIST_RECORD_DELIVERY:
-				
+				view.recordDelivery();
 				break;
 			default:
 				System.out.println("Invalid Choice");
@@ -166,4 +166,69 @@ public class ReceptionistController {
 		view.displayReceptionistMainMenu();
 	}
 	
+	
+	public void updateInventory() {
+		System.out.println("Task Finished Running");
+		goBackController();
+	}
+	
+	public void recordDeliveryController(int orderId) {
+		DatabaseUtil dbUtil = new DatabaseUtil();
+		Connection conn = dbUtil.establishConnection();
+		Statement st = null;
+		String qry = "SELECT STATUS FROM CAR_ORDER WHERE OID = " + orderId;
+		try {
+			st = conn.createStatement();
+			
+			ResultSet set = st.executeQuery(qry);
+			set.next();
+			if(set.getString("STATUS").toUpperCase().equals("COMPLETE")) {
+				System.out.println("Order is already delivered");
+			}else {
+				qry = "UPDATE CAR_ORDER SET STATUS = 'COMPLETE' WHERE OID = " + orderId;
+				st.executeUpdate(qry);
+				
+				int serviceCenterId;
+				int partId;
+				int sourceServiceCenterId;
+				int qty;
+				String reqType;
+				
+				qry = "SELECT QTY , CENTERID , REQCENTERID , PARTID , REQTYPE FROM CAR_ORDER WHERE OID = " + orderId;
+				
+				ResultSet rs = st.executeQuery(qry);
+				rs.next();
+				serviceCenterId = rs.getInt("CENTERID");
+				partId = rs.getInt("PARTID");
+				reqType = rs.getString("REQTYPE");
+				qty = rs.getInt("QTY");
+				
+				if(reqType.equals("S")) {
+					sourceServiceCenterId = rs.getInt("REQCENTERID");
+					
+					qry = "UPDATE INVENTORY SET QUANTITY = QUANTITY - " + qty + " WHERE PARTID = " + partId + " AND SERVICECENTERID = " + sourceServiceCenterId;
+					st.executeUpdate(qry);
+				}
+				
+				qry = "UPDATE INVENTORY SET QUANTITY = QUANTITY + " + qty + " WHERE PARTID = " + partId + " AND SERVICECENTERID = " + serviceCenterId;
+				st.executeUpdate(qry);
+				
+				System.out.println("Order Status Updated to Delivered");
+				
+			}
+
+			st.close();
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+			System.out.println("Order Status Updation Failed");
+		}finally {
+				try {
+					if(st != null)
+						st.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+		}
+	}
 }
