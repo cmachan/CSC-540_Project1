@@ -1,10 +1,12 @@
 package views;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 
 import constants.CONSTANTS;
 import controllers.ReceptionistController;
+import dataAccessObjects.CarDao;
 import dataAccessObjects.CustomerDao;
 import models.Car;
 import models.Customer;
@@ -60,9 +62,34 @@ public class ReceptionistView {
 		}
 	}
 	
+	/* 	A. Service ID
+		B. License Plate
+		C. Service Type
+		D. Mechanic Name
+		E. Service Start Date/Time
+		F. Service End Date/Time (expected or actual)
+		G. Service Status(Pending,Ongoing, or Complete)
+	 */
+	
+	public void  viewServiceHistory(String email) {
+		CustomerDao custDao = new CustomerDao();
+		Customer customer = custDao.getCustomerProfileByEmail(email);
+		
+		int cid = customer.getcId();
+		
+		CarDao carDao = new CarDao();
+		ArrayList<Car> cars = carDao.getCarsOwnedByCustomer(cid);
+		
+		for(Car car : cars) {
+		
+		}
+	}
+	
 	public void registerCar() {
 		Car car = new Car();
 		String email;
+		System.out.println("---Car Registration---");
+		System.out.println("Enter Cancel anytime to go back.");
 		
 		System.out.print("A. Customer email address: ");
 		console.nextLine();

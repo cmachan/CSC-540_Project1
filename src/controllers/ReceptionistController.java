@@ -51,6 +51,29 @@ public class ReceptionistController {
 			registerCarControlFlow(car);
 		}
 	}
+	
+	public void serviceHistoryDisplayController() {
+		System.out.print("Customer Email Address: ");
+		String email;
+		email = scan.nextLine();
+		view.viewServiceHistory(email);
+		serviceHistoryController();
+	}
+	
+	public void serviceHistoryController() {
+		System.out.println("\n1. Go Back");
+		System.out.print("Enter Choice(1): ");
+		int choice;
+		choice = scan.nextInt();
+		
+		if(choice == 1) {
+			view.displayReceptionistMainMenu();
+		}else {
+			System.out.println("Invalid Inpput");
+			serviceHistoryController();
+		}
+		
+	}
 
 	public void registerCarIntoDb(Car car) {
 		DatabaseUtil dbUtil = new DatabaseUtil();
@@ -74,7 +97,7 @@ public class ReceptionistController {
 				rs = st.executeQuery(qry);
 				rs.next();
 				carTypeId = rs.getInt(1) + 1;
-				qry = "INSERT INTO CARTYPE VALUES(" + carTypeId + ",'" + car.getMake().toUpperCase() + "','" + car.getModel().toUpperCase() +"')";
+				qry = "INSERT INTO CARTYPE (MAKE , MODEL) VALUES('" + car.getMake().toUpperCase() + "','" + car.getModel().toUpperCase() +"')";
 				st.executeUpdate(qry);
 			}
 			
@@ -100,45 +123,45 @@ public class ReceptionistController {
 
 	public void mainFlowControl(String choice){
 		switch(choice) {
-		case CONSTANTS.RECPTIONIST_PROFILE:
-			EmployeeView empView = new EmployeeView();
-			EmployeeController empController = new EmployeeController(empView);
-			empView.setController(empController);
-			empController.setRole(2);
-			empController.setRecController(this);
-			Employee emp = empController.getEmployeeProfile(950932130);
-			if (emp != null) {
-				empView.displayProfileMenu();
-			}
-			break;
-		case CONSTANTS.RECPTIONIST_CUSTOMER_PROFILE:
-			System.out.print("Customer email address: ");
-			view.viewCusomerProfile(scan.nextLine());
-			break;
-		case CONSTANTS.RECPTIONIST_REGISTER_CAR:
-			view.registerCar();
-			break;
-		case CONSTANTS.RECPTIONIST_SERVICE_HISTORY:
-			
-			break;
-		case CONSTANTS.RECPTIONIST_SCHED_SERVICE:
-			
-			break;
-		case CONSTANTS.RECPTIONIST_RESCHED_SERVICE:
-			
-			break;
-		case CONSTANTS.RECPTIONIST_INVOICE:
-			
-			break;
-		case CONSTANTS.RECPTIONIST_UPDATE_INVENTORY:
-			
-			break;
-		case CONSTANTS.RECPTIONIST_RECORD_DELIVERY:
-			
-			break;
-		default:
-			System.out.println("Invalid Choice");
-	}
+			case CONSTANTS.RECPTIONIST_PROFILE:
+				EmployeeView empView = new EmployeeView();
+				EmployeeController empController = new EmployeeController(empView);
+				empView.setController(empController);
+				empController.setRole(2);
+				empController.setRecController(this);
+				Employee emp = empController.getEmployeeProfile(950932130);
+				if (emp != null) {
+					empView.displayProfileMenu();
+				}
+				break;
+			case CONSTANTS.RECPTIONIST_CUSTOMER_PROFILE:
+				System.out.print("Customer email address: ");
+				view.viewCusomerProfile(scan.nextLine());
+				break;
+			case CONSTANTS.RECPTIONIST_REGISTER_CAR:
+				view.registerCar();
+				break;
+			case CONSTANTS.RECPTIONIST_SERVICE_HISTORY:
+				serviceHistoryDisplayController();
+				break;
+			case CONSTANTS.RECPTIONIST_SCHED_SERVICE:
+				
+				break;
+			case CONSTANTS.RECPTIONIST_RESCHED_SERVICE:
+				
+				break;
+			case CONSTANTS.RECPTIONIST_INVOICE:
+				
+				break;
+			case CONSTANTS.RECPTIONIST_UPDATE_INVENTORY:
+				
+				break;
+			case CONSTANTS.RECPTIONIST_RECORD_DELIVERY:
+				
+				break;
+			default:
+				System.out.println("Invalid Choice");
+		}
 	
 		view.displayReceptionistMainMenu();
 	}
