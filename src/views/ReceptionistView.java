@@ -81,7 +81,7 @@ public class ReceptionistView {
 		ArrayList<Car> cars = carDao.getCarsOwnedByCustomer(cid);
 		
 		for(Car car : cars) {
-		
+			
 		}
 	}
 	
@@ -128,4 +128,5 @@ public class ReceptionistView {
 		
 		controller.registerCarControlFlow(car);
 	}
+	
 }

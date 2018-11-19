@@ -57,10 +57,10 @@ public class ReceptionistController {
 		String email;
 		email = scan.nextLine();
 		view.viewServiceHistory(email);
-		serviceHistoryController();
+		goBackController();
 	}
 	
-	public void serviceHistoryController() {
+	public void goBackController() {
 		System.out.println("\n1. Go Back");
 		System.out.print("Enter Choice(1): ");
 		int choice;
@@ -69,8 +69,8 @@ public class ReceptionistController {
 		if(choice == 1) {
 			view.displayReceptionistMainMenu();
 		}else {
-			System.out.println("Invalid Inpput");
-			serviceHistoryController();
+			System.out.println("Invalid Input");
+			goBackController();
 		}
 		
 	}
@@ -154,7 +154,7 @@ public class ReceptionistController {
 				
 				break;
 			case CONSTANTS.RECPTIONIST_UPDATE_INVENTORY:
-				
+				updateInventory();
 				break;
 			case CONSTANTS.RECPTIONIST_RECORD_DELIVERY:
 				
@@ -166,4 +166,8 @@ public class ReceptionistController {
 		view.displayReceptionistMainMenu();
 	}
 	
+	
+	public void updateInventory() {
+		goBackController();
+	}
 }
