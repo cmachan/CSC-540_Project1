@@ -1,17 +1,39 @@
 package models;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Repair {
 	int rId;
 	int cId;
 	float fees;
+	Fault fault;
 	
+	ArrayList<BaseService>baseServices;
+	public Fault getFault() {
+		return fault;
+	}
+	public ArrayList<BaseService> getBaseServices() {
+		return baseServices;
+	}
+	public void setBaseServices(ArrayList<BaseService> baseServices) {
+		this.baseServices = baseServices;
+	}
+	public void setFault(Fault fault) {
+		this.fault = fault;
+	}
 	Car car;
 	int mechanicId;
-	String faults;
+	
 	String serviceType;
+	String serviceTypeDetail;
+	public String getServiceTypeDetail() {
+		return serviceTypeDetail;
+	}
+	public void setServiceTypeDetail(String serviceTypeDetail) {
+		this.serviceTypeDetail = serviceTypeDetail;
+	}
 	public Car getCar() {
 		return car;
 	}
@@ -70,12 +92,7 @@ public class Repair {
 	public void setMechanicId(int mechanicId) {
 		this.mechanicId = mechanicId;
 	}
-	public String getFaults() {
-		return faults;
-	}
-	public void setFaults(String faults) {
-		this.faults = faults;
-	}
+	
 	public String getServiceType() {
 		return serviceType;
 	}

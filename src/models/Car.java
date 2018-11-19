@@ -7,6 +7,8 @@ public class Car {
 	String make;
 	String model;
 	int makeYear;
+	int carTypeID;
+
 	int cId;
 	Date dateOfService;
 	String lastServiceType;
@@ -14,6 +16,12 @@ public class Car {
 	int lastMileage;
 	int newMileage;
 
+	public int getCarTypeID() {
+		return carTypeID;
+	}
+	public void setCarTypeID(int carTypeID) {
+		this.carTypeID = carTypeID;
+	}
 	public String getMake() {
 		return make;
 	}

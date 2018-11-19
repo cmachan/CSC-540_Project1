@@ -3,7 +3,6 @@ package dataAccessObjects;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
@@ -17,7 +16,6 @@ import databaseUtilities.DatabaseUtil;
 import models.Customer;
 import models.Employee;
 import models.Part;
-
 public class EmployeeDao {
 	
 	 public static Date addDays(Date date, int days)
@@ -27,15 +25,16 @@ public class EmployeeDao {
 	        cal.add(Calendar.DATE, days); //minus number would decrement the days
 	        return cal.getTime();
 	    }
-	 public static Date addHours(Date date, int hours)
+	 public static Date addHours(Date date, float hours)
 	    {
 	        Calendar cal = Calendar.getInstance();
 	        cal.setTime(date);
-	        cal.add(Calendar.HOUR, hours); //minus number would decrement the days
+	        int min=(int) (hours*60);
+	        cal.add(Calendar.MINUTE, min); //minus number would decrement the days
 	        return cal.getTime();
 	    }
-	public ArrayList<Employee> getAllMechanic() {
-		String qry = "select emp.ENAME,emp.EID,serv.SERVICECENTERID FROM EMPLOYEE emp,EMP_SERVICE serv WHERE emp.EID = serv.EID and serv.ROLE='Mechanic' ";
+	public ArrayList<Employee> getAllMechanic(int center) {
+		String qry = "select emp.ENAME,emp.EID,serv.SERVICECENTERID FROM EMPLOYEE emp,EMP_SERVICE serv WHERE emp.EID = serv.EID and serv.ROLE='Mechanic' and serv.SERVICECENTERID=?  ";
 		PreparedStatement statement = null;
 		ArrayList<Employee> mechanics=new ArrayList<Employee>();
 		Employee  employee=null;
@@ -44,7 +43,7 @@ public class EmployeeDao {
 			Connection conn=db.establishConnection();
 		
 			statement = conn.prepareStatement(qry);
-		
+			statement.setInt(1, center);
 			ResultSet rs = statement.executeQuery();
 			
 			
@@ -63,18 +62,23 @@ public class EmployeeDao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally {
+			db.closeConnection();
+			
+
 		}
+		
 		return mechanics;
 	}
 
-	public ArrayList<Employee> getFreeMechanic(int centerId, int hours) {
-		String qry = " select sch.SDATE,serv.EID,  extract(hour from numtodsinterval( (sum  ( SUBSTR(ENDTIME-STARTTIME  , 1, 2)*60 + SUBSTR(ENDTIME-STARTTIME  , 4, 2)*60 + SUBSTR(ENDTIME-STARTTIME  , 7, 2))), 'SECOND'))  as intv " + 
-				" FROM EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on   serv.EID = sch.MECHID and serv.ROLE='Mechanic' and serv.SERVICECENTERID=? and ( (sch.SDATE is null  or sch.sdate>=CURRENT_DATE   )  ) GROUP BY sch.SDATE,serv.EID order by intv,SDATE " + 
-				"";
+	public ArrayList<Employee> getFreeMechanic(int centerId, float hours,Date startDate) {
+		String qry = "    select sch.SDATE,serv.EID , nvl(SUM((sch.endtime+0)-(sch.starttime+0)),0) as inv ,emp.ENAME" + 
+				" FROM EMPLOYEE emp,EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on serv.EID = sch.MECHID where  serv.ROLE='Mechanic' and serv.SERVICECENTERID=?  and emp.EID=serv.EID and    " + 
+				"( (sch.SDATE is null  or sch.sdate>?   )  )  GROUP BY serv.EID,sch.SDATE,emp.ENAME   order by inv,SDATE ";
 		PreparedStatement statement = null;
 		String qry2 = " select ENDTIME from SCHEDULE where MECHID=? and SDATE=? order by ENDTIME Desc ";
 		ArrayList<Employee> employees=new ArrayList<>();
-		String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+		String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date(startDate.getTime()));
 		 DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		 DateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		
@@ -85,9 +89,11 @@ public class EmployeeDao {
 		
 			statement = conn.prepareStatement(qry);
 			statement.setInt(1,centerId);
+			statement.setDate(2,new java.sql.Date(startDate.getTime()));
 			ResultSet rs = statement.executeQuery();
 			
 			Date dt=dateFormat.parse(date);
+			dt= addDays(dt, 1);
 			while  ( employees.size()<2)
 				{
 				employee=new Employee();
@@ -95,12 +101,13 @@ public class EmployeeDao {
 					if ( rs.getDate("SDATE")==null  || dateFormat.parse(rs.getDate("SDATE").toString()) !=dt) {
 						
 						employee.seteId(rs.getInt("EID"));
+						employee.seteName(rs.getString("ENAME"));
 						employee.setsDate(dt);
 						employees.add(employee);
 						dt= addDays(dt, 1);
-					}else if (11-rs.getInt("intv")>hours) {
+					}else if (11-rs.getInt("inv")*24>hours) {
 						
-	
+						employee.seteName(rs.getString("ENAME"));
 						employee.seteId(rs.getInt("EID"));
 						employee.setsDate(rs.getDate("SDATE"));
 						employees.add(employee);
@@ -111,6 +118,7 @@ public class EmployeeDao {
 					if (employees.size()==1) {
 				
 						employee.seteId(employees.get(0).geteId());
+						employee.seteName((employees.get(0).geteName()));
 						employee.setsDate(dt);
 						employees.add(employee);
 						dt= addDays(dt, 1);
@@ -152,13 +160,21 @@ public class EmployeeDao {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		finally {
+			db.closeConnection();
+			
+
+		}
+		
 		return employees;
 	}
 
-	public ArrayList<Date> getStartDate(int mechanicId,int hours) {
-		String qry = " select sch.SDATE, extract(hour from numtodsinterval( (sum  ( SUBSTR(ENDTIME-STARTTIME  , 1, 2)*60 + SUBSTR(ENDTIME-STARTTIME  , 4, 2)*60 + SUBSTR(ENDTIME-STARTTIME  , 7, 2))), 'SECOND'))  as intv " + 
-				" FROM EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on   serv.EID = sch.MECHID where serv.ROLE='Mechanic' and serv.EID=?  and ( (sch.SDATE is null  or sch.sdate>=CURRENT_DATE   )  ) GROUP BY sch.SDATE order by intv,SDATE " + 
-				"";
+	public ArrayList<Date> getStartDate(int mechanicId,float hours,Date startDate) {
+		
+		String qry = "    select sch.SDATE,serv.EID , nvl(SUM((sch.endtime+0)-(sch.starttime+0)),0) as inv" + 
+				" FROM EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on serv.EID = sch.MECHID where  serv.ROLE='Mechanic' and serv.EID=?    and    " + 
+				"( (sch.SDATE is null  or sch.sdate>?   )  )  GROUP BY serv.EID,sch.SDATE  order by inv,SDATE ";
+		
 		PreparedStatement statement = null;
 		String qry2 = " select ENDTIME from SCHEDULE where MECHID=? and SDATE=? order by ENDTIME Desc ";
 		
@@ -173,9 +189,12 @@ public class EmployeeDao {
 		
 			statement = conn.prepareStatement(qry);
 			statement.setInt(1,mechanicId);
+			statement.setDate(2,new java.sql.Date(startDate.getTime()));
+			
 			ResultSet rs = statement.executeQuery();
 			
 			Date dt=dateFormat.parse(date);
+			dt= addDays(dt, 1);
 			while  (dates.size()<2 )
 				{ 
 				if (rs.next()){
@@ -183,7 +202,7 @@ public class EmployeeDao {
 					 dates.add(dt);
 				    dt= addDays(dt, 1);
 					
-				}else if (11-rs.getInt("intv")>hours) {
+				}else if (11-rs.getInt("inv")*24>hours) {
 					
 
 					 dates.add(rs.getDate("SDATE"));
@@ -205,7 +224,7 @@ public class EmployeeDao {
 				
 				statement = conn.prepareStatement(qry2);
 				statement.setInt(1,mechanicId);
-				statement.setDate(1,new java.sql.Date( dates.get(i).getTime()) );
+				statement.setDate(2,new java.sql.Date( dates.get(i).getTime()) );
 				rs = statement.executeQuery();
 				
 				if (rs.next()) {
@@ -233,24 +252,35 @@ public class EmployeeDao {
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}finally {
+				db.closeConnection();
+				
+
 			}
+			
 		return dates;
 	}
-	public void updateMechHours(int employee, int hour) {
+	public void updateMechHours(int employee, float hour) {
 		// TODO Auto-generated method stub
 		PreparedStatement statement = null;
 		Connection conn=null;
-		String qry = "UPDATE MECH_HOURS set HOURS = HOURS+? WHERE EID = ?";
+		String qry = "UPDATE MECH_HOURS set HOURS = HOURS+? WHERE EID = ? ";
+		String qry2 = "INSERT INTO MECH_HOURS VALUES (?,?)  ";
 		DatabaseUtil db = new DatabaseUtil();
 		try {
 			conn=db.establishConnection();
 			
 			statement = conn.prepareStatement(qry);
-			statement.setInt(1, hour);
+			statement.setFloat(1, hour);
 			statement.setInt(2, employee);
 			
+			int affectedRows =statement.executeUpdate();
+			if (affectedRows==0) {
+				statement = conn.prepareStatement(qry2);
+				statement.setInt(1, employee);
+				statement.setFloat(2, hour);
 			statement.executeUpdate();
-			
+			}
 			if (statement != null) {
 				statement.close();
 			}
@@ -265,7 +295,35 @@ public class EmployeeDao {
 		}
 		
 	}
-	
+		public void deleteMechHours(int employee, float hour) {
+		// TODO Auto-generated method stub
+		PreparedStatement statement = null;
+		Connection conn=null;
+		String qry = "UPDATE MECH_HOURS set HOURS = HOURS-? WHERE EID = ? ";
+		DatabaseUtil db = new DatabaseUtil();
+		try {
+			conn=db.establishConnection();
+			
+			statement = conn.prepareStatement(qry);
+			statement.setFloat(1, hour);
+			statement.setInt(2, employee);
+			statement.executeUpdate();
+			
+			if (statement != null) {
+				statement.close();
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			db.closeConnection();
+			
+
+		}
+	}
+
+
 	public void updateEmployee(Employee emp) {
 		DatabaseUtil db = new DatabaseUtil();
 		Connection conn;

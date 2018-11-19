@@ -12,9 +12,9 @@ import models.Customer;
 public class CarTypeDao {
 
 	
-	public int insertCarType(String make,String model,int year) {
+	public int insertCarType(String make,String model) {
 		PreparedStatement statement = null;
-		String qry2 = "INSERT  INTO CARTYPE (MAKE,MODEL,YEAR)  VALUES (?,?,?)";
+		String qry2 = "INSERT  INTO CARTYPE (MAKE,MODEL)  VALUES (?,?)";
 
 		DatabaseUtil db = new DatabaseUtil();
 		   try {
@@ -25,7 +25,7 @@ public class CarTypeDao {
 			     
 			        statement.setString(1, make);
 			        statement.setString(2, model);
-			        statement.setInt(3, year);
+			      
 			        // ...
 
 			        statement.executeUpdate();
@@ -42,16 +42,21 @@ public class CarTypeDao {
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}finally {
+				db.closeConnection();
+				
+
 			}
+			
 		   return -1;
 	}
 	
 	
 	
-	public int getCarType(String make,String model,int year) {
+	public int getCarType(String make,String model) {
 		PreparedStatement statement = null;
 		
-		String qry1="select CARTYPEID from CARTYPE where MAKE=? and MODEL=? and YEAR=?";
+		String qry1="select CARTYPEID from CARTYPE where MAKE=? and MODEL=?";
 		
 		DatabaseUtil db = new DatabaseUtil();
 		try {
@@ -60,7 +65,6 @@ public class CarTypeDao {
 			statement = conn.prepareStatement(qry1);
 			statement.setString(1, make);
 			statement.setString(2, model);
-			statement.setInt(3, year);
 			ResultSet rs = statement.executeQuery();
 			if (rs.next())
 				{
@@ -68,14 +72,19 @@ public class CarTypeDao {
 				
 				}
 			else {
-				return insertCarType( make, model, year); 
+				return insertCarType( make, model); 
 			}
 			
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally {
+			db.closeConnection();
+			
+
 		}
+		
 		return -1;
 		 
 	}

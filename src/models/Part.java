@@ -4,11 +4,25 @@ public class Part {
 	int partID;
 	String pName;
 	float unitPrice;
-	int distributorId;
+	String distributorId;
 	int serviceCenterId;
 	int quantity;
 	int minQuantity;
 	int threshold;
+	int warranty;
+	int altcenter;
+	public int getAltcenter() {
+		return altcenter;
+	}
+	public void setAltcenter(int altcenter) {
+		this.altcenter = altcenter;
+	}
+	public int getWarranty() {
+		return warranty;
+	}
+	public void setWarranty(int warranty) {
+		this.warranty = warranty;
+	}
 	int deliveryTime;
 	public int getDeliveryTime() {
 		return deliveryTime;
@@ -34,10 +48,10 @@ public class Part {
 	public void setUnitPrice(float unitPrice) {
 		this.unitPrice = unitPrice;
 	}
-	public int getDistributorId() {
+	public String getDistributorId() {
 		return distributorId;
 	}
-	public void setDistributorId(int distributorId) {
+	public void setDistributorId(String distributorId) {
 		this.distributorId = distributorId;
 	}
 	public int getServiceCenterId() {

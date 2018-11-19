@@ -9,6 +9,13 @@ public class Customer {
 	long phone;
 	String address;
 	String password;
+	int centerId;
+	public int getCenterId() {
+		return centerId;
+	}
+	public void setCenterId(int centerId) {
+		this.centerId = centerId;
+	}
 	ArrayList<Car> carsOwned;
 	public int getcId() {
 		return cId;
