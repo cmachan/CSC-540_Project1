@@ -7,6 +7,13 @@ public class Car {
 	String make;
 	String model;
 	int makeYear;
+	int carTypeID;
+	public int getCarTypeID() {
+		return carTypeID;
+	}
+	public void setCarTypeID(int carTypeID) {
+		this.carTypeID = carTypeID;
+	}
 	public String getMake() {
 		return make;
 	}

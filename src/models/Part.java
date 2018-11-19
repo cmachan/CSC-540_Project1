@@ -9,7 +9,15 @@ public class Part {
 	int quantity;
 	int minQuantity;
 	int threshold;
+	int warranty;
+	public int getWarranty() {
+		return warranty;
+	}
+	public void setWarranty(int warranty) {
+		this.warranty = warranty;
+	}
 	int deliveryTime;
+	
 	public int getDeliveryTime() {
 		return deliveryTime;
 	}

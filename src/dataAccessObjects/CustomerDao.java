@@ -5,8 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import databaseUtilities.DatabaseUtil;
+import models.BaseService;
 import models.Customer;
 
 public class CustomerDao {
@@ -70,11 +72,70 @@ public class CustomerDao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		finally {
+			db.closeConnection();
+			
+
+		}
+		
+	}
+
+	public void updateCustomerService(int getcId, ArrayList<BaseService> baseServices, Date startTime, int repairId, boolean reschedule) {
+		
+		// TODO Auto-generated method stub
+		PreparedStatement statement = null;
+		Connection conn=null;
+		DatabaseUtil db = new DatabaseUtil();
+		
+		try {
+			conn=db.establishConnection();
+			if (reschedule) {
+				String qry = "UPDATE customer_service set lastservice = ? where  lastserviceid=?";
+				statement = conn.prepareStatement(qry);
+				
+				statement.setInt(2, repairId);
+				statement.setDate(1, new java.sql.Date(startTime.getTime()));
+				statement.executeUpdate();
+				
+			}
+			else {	
+			for (int i=0;i<baseServices.size();i++) {
+					int bid=baseServices.get(i).getbId();
+		
+					String qry = "UPDATE customer_service set lastservice = ?,lastserviceid=? where BID =? and CID =?  ";
+					String qry2 = "INSERT INTO customer_service(BID,CID,LASTSERVICE) VALUES (?,?,?)  ";
+				
+						statement = conn.prepareStatement(qry);
+					statement.setInt(3, bid);
+					statement.setInt(4, getcId);
+					statement.setInt(2, repairId);
+					statement.setDate(1, new java.sql.Date(startTime.getTime()));
+					int affectedRows =statement.executeUpdate();
+					if (affectedRows==0) {
+						statement = conn.prepareStatement(qry2);
+						statement.setInt(1, bid);
+						statement.setInt(2, getcId);
+						statement.setDate(3, new java.sql.Date(startTime.getTime()));
+						statement.executeUpdate();
+					}
+			}
+			
+				if (statement != null) {
+					statement.close();
+				}
+
+			
+		}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}finally {
 			db.closeConnection();
 			
 
 		}
+	
 		
 	}
 	

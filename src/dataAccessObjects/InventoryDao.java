@@ -47,10 +47,10 @@ public class InventoryDao {
 		return parts;
 	}
 
-	public void updateInventory(int centerId, int mid) {
+	public void updateInventory(int centerId, int mid, int carType) {
 		// TODO Auto-generated method stub
 		String qry="update  INVENTORY inv set inv.QUANTITY=inv.QUANTITY-(SELECT NVL( ( select (sum(bspart.QUANTITY) ) from BASICSERVICE_PART bspart " + 
-				"where bspart.PARTID=inv.PARTID and  inv.SERVICECENTERID=? and bspart.BID in (select BID from BASICMAINTENANCEMAP where MID =?) group by  bspart.PARTID) ,0) from dual) ";
+				"where bspart.PARTID=inv.PARTID and  inv.SERVICECENTERID=? and bspart.CARTYPEID=? and bspart.BID in (select BID from BASICMAINTENANCEMAP where MID =?) group by  bspart.PARTID) ,0) from dual) ";
 	
 		PreparedStatement statement = null;
 		Connection conn=null;
@@ -60,7 +60,8 @@ public class InventoryDao {
 			
 			statement = conn.prepareStatement(qry);
 			statement.setInt(1, centerId);
-			statement.setInt(2, mid);
+			statement.setInt(2, carType);
+			statement.setInt(3, mid);
 			
 			statement.executeUpdate();
 			
@@ -79,5 +80,48 @@ public class InventoryDao {
 	
 	
 	
+	}
+
+	public ArrayList<Part>  getParts(int getbId, int carType, String make) {
+		
+		// TODO Auto-generated method stub
+		
+		
+				PreparedStatement statement = null;
+				ArrayList<Part> parts=new ArrayList<Part>();
+				String qry = "select bspart.PARTID, bspart.QUANTITY,inv.NAME,psw.PRICE,psw.WARRANTY from BASICSERVICE_PART bspart,INVENTORY_PARTS inv,PARTS_WARRANTY psw"
+						+ " where bspart.BID=? and bspart.CARTYPEID=? and inv.PARTID=bspart.PARTID and psw.PARTID=inv.PARTID and psw.CARMAKE=?" ;
+				
+				DatabaseUtil db = new DatabaseUtil();
+				try {
+					Connection conn=db.establishConnection();
+				
+					statement = conn.prepareStatement(qry);
+					statement.setInt(1,getbId);
+					statement.setInt(2,carType);
+					statement.setString(3,make);
+					ResultSet rs = statement.executeQuery();
+					
+					
+					while (rs.next())
+						{
+						Part ps=new Part();
+						ps.setPartID(rs.getInt("PARTID"));
+						ps.setQuantity(rs.getInt("QUANTITY"));
+						ps.setpName(rs.getString("NAME"));
+						ps.setUnitPrice(rs.getFloat("PRICE"));
+						ps.setWarranty(rs.getInt("WARRANTY"));
+						parts.add(ps);
+						}
+					
+					
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return parts;
+		
+		// TODO Auto-generated method stub
+		
 	}
 }

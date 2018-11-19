@@ -11,6 +11,7 @@ public class CustomerLogin {
 		CustomerController customerController=new CustomerController(customerView);
 		customerView.setController(customerController);
 		Customer customer=customerController.getCustomerProfile(1);
+		customer.setCenterId(1001);
 		if (customer!=null) {
 			customerController.displayMainMenu();
 		}

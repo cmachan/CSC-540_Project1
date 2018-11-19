@@ -15,8 +15,11 @@ public class CONSTANTS {
 	public static final String  CUSTOMER_SERVICE= CONSTANTS.CUSTOMER_MAIN_MENU+"3";
 	public static final String  CUSTOMER_SERVICE_HISTORY= CONSTANTS.CUSTOMER_SERVICE+"1";
 	public static final String  CUSTOMER_SERVICE_SCHEDULE= CONSTANTS.CUSTOMER_SERVICE+"2";
+	public static final String  CUSTOMER_SERVICE_RESCHEDULE= CONSTANTS.CUSTOMER_SERVICE+"3";
+	public static final String  CUSTOMER_SERVICE_INVOICE= CONSTANTS.CUSTOMER_MAIN_MENU+"4";
 	public static final String  CUSTOMER_INVOICE= CONSTANTS.CUSTOMER_MAIN_MENU+"4";
 	public static final String  CUSTOMER_LOGOUT= CONSTANTS.CUSTOMER_MAIN_MENU+"5";
 	public static final String  CUSTOMER_UPDATE_PROFILE = CONSTANTS.CUSTOMER_PROFILE+"2";
-	public static final String STATUS_PENDING = "pending";
+	public static final String STATUS_PENDING = "Pending";
+	public static final String STATUS_COMPLETE = "Complete";
 }

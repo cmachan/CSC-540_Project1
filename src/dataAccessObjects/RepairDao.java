@@ -7,12 +7,14 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import constants.CONSTANTS;
 import models.Part;
 import databaseUtilities.DatabaseUtil;
 import models.BaseService;
 import models.Car;
+import models.Fault;
 import models.Repair;
 
 public class RepairDao {
@@ -61,30 +63,33 @@ public class RepairDao {
 	public ArrayList<BaseService> getBaseServices(Repair service) {
 		// TODO Auto-generated method stub
 		int diffMileage=service.getCar().getNewMileage()-service.getCar().getLastMileage();
-
+		diffMileage=diffMileage/1000;
 		PreparedStatement statement = null;
 		ArrayList<BaseService> baseServices=new ArrayList<BaseService>();
-		String qry = "SELECT bs.BID,bs.LABOURCHARGE,bs.HRS,ms.MID from BASICSERVICE bs,MAINTENANCESERVICE ms,BASICMAINTENANCEMAP bsms where ms.MILES=? and ms.MID=bsms.MID and bsms.BID=bs.BID " ;
+		String qry = "SELECT cs.LASTSERVICE,bs.BID,bs.LABOURCHARGE,bs.HRS,bsms.MID from BASICMAINTENANCEMAP bsms,BASICSERVICE bs left join customer_service cs on bs.BID =cs.BID and cs.CID=? where bsms.BID=bs.BID and  bsms.MID=(select min(MID)   from maintenanceservice  where  MILES>? and CARTYPEID=?)" ;
 		DatabaseUtil db = new DatabaseUtil();
 		try {
 			Connection conn=db.establishConnection();
 		
 			statement = conn.prepareStatement(qry);
-			statement.setInt(1,diffMileage);
+			statement.setInt(1,service.getcId());
+			statement.setInt(2,diffMileage);
+			statement.setInt(3,service.getCar().getCarTypeID());
 			ResultSet rs = statement.executeQuery();
-			
+			InventoryDao inv=new InventoryDao();
 			
 			while (rs.next())
 				{
 				BaseService bs=new BaseService();
 				bs.setbId(rs.getInt("BID"));
-				bs.setLabourCharge(rs.getString("LABOURCHARGE"));
-				
-				bs.setHour(rs.getInt("HRS"));
+				bs.setLabourCharge(rs.getInt("LABOURCHARGE"));
+				bs.setLastService(rs.getDate("LASTSERVICE"));
+				bs.setHour(rs.getFloat("HRS"));
+				bs.setParts(inv.getParts(bs.getbId(),service.getCar().getCarTypeID(),service.getCar().getMake()));
 				service.setMid(rs.getInt("MID"));
 				baseServices.add(bs);
 				}
-			service.setServiceType("Maintainance");
+			
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -140,17 +145,23 @@ public class RepairDao {
 		PreparedStatement statement = null;
 		Connection conn=null;
 		DateFormat dateFormat2 = new SimpleDateFormat("HH:mm:ss");
-		String qry = "Insert into REPAIR(CID,FEES,CARID,MECHANICID,FAULTS,SERVICETYPE,TIMESLOT,MID,RDATE,CENTERID,STATUS) values(?,?,?,?,?,?,?,?,?,?,?)";
+		String qry = "Insert into REPAIR(CID,FEES,CARID,MECHANICID,FAULT,SERVICETYPE,TIMESLOT,MID,RDATE,CENTERID,STATUS) values(?,?,?,?,?,?,?,?,?,?,?)";
 		DatabaseUtil db = new DatabaseUtil();
 		try {
 			conn=db.establishConnection();
+			
 			
 			statement = conn.prepareStatement(qry);
 			statement.setInt(1, service.getcId());
 			statement.setFloat(2, service.getFees());
 			statement.setString(3, service.getCar().getLicensePlate());
 			statement.setInt(4, service.getMechanicId());
-			statement.setString(5, service.getFaults());
+			if (service.getFault()!=null) {
+				statement.setInt(5, service.getFault().getfId());
+			}
+			else {
+				statement.setString(5, null);
+			}
 			statement.setString(6, service.getServiceType());
 			statement.setString(7, dateFormat2.format(service.getStartTime())+"-"+dateFormat2.format(service.getEndTime()));
 			statement.setInt(8, service.getMid());
@@ -165,6 +176,8 @@ public class RepairDao {
 		        if (rs.next()) {
 		            return (int) rs.getLong(1);
 		        }
+		        
+		        
 
 			if (statement != null) {
 				statement.close();
@@ -214,10 +227,311 @@ public class RepairDao {
 
 		}
 		
-		
 	}
+		
+		public ArrayList<Fault> getAllFaults() {
+			
+			
+
+			PreparedStatement statement = null;
+			ArrayList<Fault> faults=new ArrayList<Fault>();
+			String qry = "SELECT * from fault " ;
+			DatabaseUtil db = new DatabaseUtil();
+			try {
+				Connection conn=db.establishConnection();
+			
+				statement = conn.prepareStatement(qry);
+				
+				ResultSet rs = statement.executeQuery();
+				
+				
+				while (rs.next())
+					{
+					Fault fault=new Fault();
+					fault.setfId(rs.getInt("FID"));
+					fault.setfName(rs.getString("FNAME"));
+					fault.setDiagnostic(rs.getString("diagnostic"));
+					fault.setFee(rs.getInt("FEE"));
+					
+					faults.add(fault);
+					}
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}finally {
+				db.closeConnection();
+				
+
+			}
+			return faults;
+	}
+
+		public void getFaultDetails(Fault fault, int carType,int customerId,String make) {
+			// TODO Auto-generated method stub
+
+			PreparedStatement statement = null;
+			ArrayList<BaseService> baseServices=new ArrayList<BaseService>();
+			String qry = "SELECT  cs.LASTSERVICE, BS.BID,BS.BNAME,BS.LABOURCHARGE,BS.HRS from FAULT_SERVICE f,BASICSERVICE BS  left join customer_service cs on BS.BID =cs.BID and cs.CID=?  where f.FID=? and f.BID=BS.BID " ;
+			DatabaseUtil db = new DatabaseUtil();
+			try {
+				Connection conn=db.establishConnection();
+			
+				statement = conn.prepareStatement(qry);
+				statement.setInt(1,customerId);
+				statement.setInt(2,fault.getfId());
+				ResultSet rs = statement.executeQuery();
+				InventoryDao inv=new InventoryDao();
+				
+				while (rs.next())
+					{
+					BaseService bs=new BaseService();
+					bs.setbId(rs.getInt("BID"));
+					bs.setName(rs.getString("BNAME"));
+					bs.setLabourCharge(rs.getInt("LABOURCHARGE"));
+					bs.setHour(rs.getFloat("HRS"));
+					bs.setLastService(rs.getDate("LASTSERVICE"));
+					bs.setParts(inv.getParts(bs.getbId(),carType,make));
+					baseServices.add(bs);
+					}
+				fault.setBs(baseServices);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}finally {
+				db.closeConnection();
+				
+
+			}
+			
+		}
+
+		public ArrayList<Repair> getUpcomingServices(int getcId) {
+			PreparedStatement statement = null;
+			ArrayList<Repair> repairs=new ArrayList<Repair>();
+			String qry = "SELECT rep.RID,rep.CENTERID,rep.INVOICENUMBER,rep.CARID,rep.SERVICETYPE,emp.ENAME,sc.STARTTIME,sc.ENDTIME,rep.STATUS,rep.RDATE ,m.type as type " + 
+					"FROM REPAIR rep, " + 
+					"EMPLOYEE emp,SCHEDULE sc,maintenanceservice m WHERE rep.CID = ? and rep.MECHANICID = emp.EID and rep.RID=sc.RID and rep.RDATE>CURRENT_DATE and rep.mid =m.mid " + 
+					"UNION " + 
+					"SELECT rep.RID,rep.CENTERID,rep.INVOICENUMBER,rep.CARID,rep.SERVICETYPE,emp.ENAME,sc.STARTTIME,sc.ENDTIME,rep.STATUS,rep.RDATE ,f.fname as type " + 
+					"FROM REPAIR rep, " + 
+					"EMPLOYEE emp,SCHEDULE sc,fault f WHERE rep.CID = ? and rep.MECHANICID = emp.EID and rep.RID=sc.RID and rep.RDATE>CURRENT_DATE and rep.fault =f.fid";
+				DatabaseUtil db = new DatabaseUtil();
+			try {
+				Connection conn=db.establishConnection();
+			
+				statement = conn.prepareStatement(qry);
+				statement.setInt(1,getcId);
+				statement.setInt(2,getcId);
+				ResultSet rs = statement.executeQuery();
+				
+				
+				while (rs.next())
+					{
+					Repair repair=new Repair();
+					repair.setInvoiceNumber(rs.getString("INVOICENUMBER"));
+					Car car=new Car();
+					car.setLicensePlate(rs.getString("CARID"));
+					repair.setCar(car);
+					repair.setrId(rs.getInt("RID"));
+					repair.setServiceType(rs.getString("SERVICETYPE"));
+					repair.setMechanicName(rs.getString("ENAME"));
+					repair.setStartTime(rs.getTime("STARTTIME"));
+					repair.setEndTime(rs.getTime("ENDTIME"));
+					repair.setRdate((rs.getDate("RDATE")));
+					repair.setStatus(rs.getString("STATUS"));
+					repair.setCenterId(rs.getInt("CENTERID"));
+					repair.setServiceTypeDetail(rs.getString("TYPE"));
+					
+					repairs.add(repair);
+					}
+				
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return repairs;
+			
+		}
+
+		public void updateSchedule(Repair service) {
+			// TODO Auto-generated method stub
+
+			PreparedStatement statement = null;
+			Connection conn=null;
+			String qry = "UPDATE  SCHEDULE set STARTTIME=?,ENDTIME=?,SDATE=? WHERE RID = ? ";
+			DatabaseUtil db = new DatabaseUtil();
+			try {
+				conn=db.establishConnection();
+				
+				statement = conn.prepareStatement(qry);
+				statement.setTimestamp(1, new java.sql.Timestamp(service.getStartTime().getTime()));
+				statement.setTimestamp(2,  new java.sql.Timestamp(service.getEndTime().getTime()));
+				statement.setDate(3, new java.sql.Date(service.getStartTime().getTime()));
+				statement.setInt(4, service.getrId());
+				
+				statement.executeUpdate();
+				
+
+				if (statement != null) {
+					statement.close();
+				}
+
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}finally {
+				db.closeConnection();
+				
+
+			}
+		}
+
+		public void updateRepair(Repair selectedRepair) {
+			// TODO Auto-generated method stub
+			PreparedStatement statement = null;
+			Connection conn=null;
+
+			DateFormat dateFormat2 = new SimpleDateFormat("HH:mm:ss");
+			String qry = "UPDATE REPAIR set MECHANICID =?,TIMESLOT=?,RDATE=?  WHERE RID = ? ";
+			DatabaseUtil db = new DatabaseUtil();
+			try {
+				conn=db.establishConnection();
+				
+				statement = conn.prepareStatement(qry);
+				statement.setFloat(1, selectedRepair.getMechanicId());
+			
+				
+				statement.setString(2, dateFormat2.format(selectedRepair.getStartTime())+"-"+dateFormat2.format(selectedRepair.getEndTime()));
+			
+				statement.setDate(3,new java.sql.Date( selectedRepair.getStartTime().getTime()));
+				statement.setInt(4,selectedRepair.getrId());
+				statement.executeUpdate();
+				
+				if (statement != null) {
+					statement.close();
+				}
+
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}finally {
+				db.closeConnection();
+				
+
+			}
+		}
+
+		public HashMap<String, Repair> getCompletedServices(int getcId) {
+			PreparedStatement statement = null;
+			HashMap<String, Repair> repairs=new HashMap<String, Repair>();
+			String qry = "SELECT rep.FEES, rep.RID,rep.CENTERID,rep.INVOICENUMBER,rep.CARID,rep.SERVICETYPE,emp.ENAME,sc.STARTTIME,sc.ENDTIME,rep.STATUS,rep.RDATE ,m.type as type " + 
+					"FROM REPAIR rep, " + 
+					"EMPLOYEE emp,SCHEDULE sc,maintenanceservice m WHERE rep.status=? and rep.CID = ? and rep.MECHANICID = emp.EID and rep.RID=sc.RID  and rep.mid =m.mid " + 
+					"UNION " + 
+					"SELECT rep.FEES, rep.RID,rep.CENTERID,rep.INVOICENUMBER,rep.CARID,rep.SERVICETYPE,emp.ENAME,sc.STARTTIME,sc.ENDTIME,rep.STATUS,rep.RDATE ,f.fname as type " + 
+					"FROM REPAIR rep, " + 
+					"EMPLOYEE emp,SCHEDULE sc,fault f WHERE rep.status=? and rep.CID = ? and rep.MECHANICID = emp.EID and rep.RID=sc.RID  and rep.fault =f.fid";
+				DatabaseUtil db = new DatabaseUtil();
+			try {
+				Connection conn=db.establishConnection();
+			
+				statement = conn.prepareStatement(qry);
+				statement.setString(1,CONSTANTS.STATUS_COMPLETE);
+				statement.setInt(2,getcId);
+				statement.setString(3,CONSTANTS.STATUS_COMPLETE);
+				statement.setInt(4,getcId);
+				
+				ResultSet rs = statement.executeQuery();
+				
+				
+				while (rs.next())
+					{
+					Repair repair=new Repair();
+					repair.setInvoiceNumber(rs.getString("INVOICENUMBER"));
+					Car car=new Car();
+					car.setLicensePlate(rs.getString("CARID"));
+					repair.setCar(car);
+					repair.setrId(rs.getInt("RID"));
+					repair.setServiceType(rs.getString("SERVICETYPE"));
+					repair.setMechanicName(rs.getString("ENAME"));
+					repair.setStartTime(rs.getTime("STARTTIME"));
+					repair.setEndTime(rs.getTime("ENDTIME"));
+					repair.setRdate((rs.getDate("RDATE")));
+					repair.setStatus(rs.getString("STATUS"));
+					repair.setCenterId(rs.getInt("CENTERID"));
+					repair.setFees(rs.getFloat("FEES"));
+					repair.setServiceTypeDetail(rs.getString("TYPE"));
+					
+					repairs.put(repair.getInvoiceNumber(), repair);
+					}
+				
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return repairs;
+		}
+
+		public void getServiceDetail(Repair service) {
+			String sql="";
+			PreparedStatement statement = null;
+			ArrayList<BaseService> baseServices=new ArrayList<>();
+			if (service.getServiceType().equals("Maintainance")){
+				
+				sql="select cartype.make,cartype.cartypeid,bs.bid,bs.LABOURCHARGE,bs.HRS,bs.bname " + 
+						"from REPAIR rep , basicmaintenancemap bsmap,basicservice bs,car, cartype " + 
+						"where rep.rid=? and rep.mid=bsmap.mid and bsmap.bid =bs.bid and rep.carid =car.licenseplate and car.cartypeid=cartype.cartypeid";
+				
+			}else {
+				sql="select cartype.make,cartype.cartypeid, bs.LABOURCHARGE,bs.HRS,bs.bname, " + 
+						"bs.bid from repair rep ," + 
+						"fault_service fs, " + 
+						"basicservice bs,car, cartype " + 
+						"where rep.rid=?  and rep.fault=fs.fid and fs.bid =bs.bid and rep.carid =car.licenseplate and car.cartypeid=cartype.cartypeid " ;
+			}
+			
+			DatabaseUtil db = new DatabaseUtil();
+			try {
+				Connection conn=db.establishConnection();
+			
+				statement = conn.prepareStatement(sql);
+				statement.setInt(1,service.getrId());
+				
+				ResultSet rs = statement.executeQuery();
+				InventoryDao inv=new InventoryDao();
+				
+				while (rs.next())
+					{
+					BaseService bs=new BaseService();
+					bs.setbId(rs.getInt("BID"));
+					bs.setLabourCharge(rs.getInt("LABOURCHARGE"));
+					bs.setHour(rs.getFloat("HRS"));
+					bs.setName((rs.getString("bname")));
+					bs.setParts(inv.getParts(bs.getbId(),rs.getInt("cartypeid"),rs.getString("make")));
+					
+					baseServices.add(bs);
+					}
+				
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			service.setBaseServices(baseServices);
+			
+		}
+		
+
+
+
+}
+
+	
 
 	
 	
 	
-}
+
