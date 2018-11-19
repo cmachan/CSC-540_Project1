@@ -44,6 +44,12 @@ public class CustomerDao {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		finally {
+			db.closeConnection();
+			
+
+		}
+		
 		return customer;
 		
 	}

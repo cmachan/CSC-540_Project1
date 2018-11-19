@@ -182,7 +182,12 @@ public class RepairDao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally {
+			db.closeConnection();
+			
+
 		}
+		
 	}
 
 	public int insertRepair(Repair service) {
@@ -395,7 +400,12 @@ public class RepairDao {
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}finally {
+				db.closeConnection();
+				
+
 			}
+			
 			return repairs;
 			
 		}
@@ -516,7 +526,12 @@ public class RepairDao {
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}finally {
+				db.closeConnection();
+				
+
 			}
+			
 			return repairs;
 		}
 
@@ -564,7 +579,12 @@ public class RepairDao {
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}finally {
+				db.closeConnection();
+				
+
 			}
+			
 			service.setBaseServices(baseServices);
 			
 		}

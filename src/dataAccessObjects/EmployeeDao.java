@@ -61,7 +61,12 @@ public class EmployeeDao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally {
+			db.closeConnection();
+			
+
 		}
+		
 		return mechanics;
 	}
 
@@ -154,6 +159,12 @@ public class EmployeeDao {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		finally {
+			db.closeConnection();
+			
+
+		}
+		
 		return employees;
 	}
 
@@ -240,7 +251,12 @@ public class EmployeeDao {
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}finally {
+				db.closeConnection();
+				
+
 			}
+			
 		return dates;
 	}
 	public void updateMechHours(int employee, float hour) {

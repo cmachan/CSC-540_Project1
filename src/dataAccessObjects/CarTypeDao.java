@@ -42,7 +42,12 @@ public class CarTypeDao {
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}finally {
+				db.closeConnection();
+				
+
 			}
+			
 		   return -1;
 	}
 	
@@ -74,7 +79,12 @@ public class CarTypeDao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally {
+			db.closeConnection();
+			
+
 		}
+		
 		return -1;
 		 
 	}

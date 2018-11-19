@@ -58,7 +58,12 @@ public class InventoryDao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally {
+			db.closeConnection();
+			
+
 		}
+		
 		return parts;
 	}
 
@@ -133,7 +138,12 @@ public class InventoryDao {
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				}finally {
+					db.closeConnection();
+					
+
 				}
+				
 				return parts;
 		
 		// TODO Auto-generated method stub
