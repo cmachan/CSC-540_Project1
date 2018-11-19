@@ -13,20 +13,32 @@ import models.Repair;
 public class InventoryDao {
 	public ArrayList<Part> validateParts(Repair service) {
 		// TODO Auto-generated method stub
-		
+		String bid="(";
+		for (int i =0;i<service.getBaseServices().size();i++) {
+			bid+=service.getBaseServices().get(i).getbId();
+			if (i!=(service.getBaseServices().size()-1)) {
+				bid+=",";
+				
+			}
+		}
+		bid+=")";
 		
 		PreparedStatement statement = null;
 		ArrayList<Part> parts=new ArrayList<Part>();
-		String qry = "select bspart.PARTID,inv.MINQTYORDER,dis.DELIVERYTIME from BASICSERVICE_PART bspart,INVENTORY inv,INVENTORY_PARTS inpart,"
-				+ " distributor_parts dis where bspart.PARTID=inv.PARTID and inpart.PARTID=inv.PARTID and inpart.PARTID=dis.PARTID and dis.deliverytime=(select min(deliverytime) from distributor_parts where partid=dis.PARTID )    and inv.SERVICECENTERID=?  and  (inv.QUANTITY-inv.THRESHOLD)<bspart.QUANTITY and bspart.BID in (select BID from BASICMAINTENANCEMAP where MID =?)" ;
-		
-		DatabaseUtil db = new DatabaseUtil();
+		String qry = "select bspart.PARTID,inv.MINQTYORDER,dis.did,dis.DELIVERYTIME,inv.QUANTITY,inv.THRESHOLD ,bspart.QUANTITY as reqQuant,(select nvl(SERVICECENTERID,-1) from INVENTORY where (QUANTITY-THRESHOLD)> bspart.QUANTITY and carmake= inv.carmake and partid=inv.PARTID )  \r\n" + 
+				"as inventorynext from BASICSERVICE_PART bspart,INVENTORY inv,INVENTORY_PARTS inpart, "
+				+" distributor_parts dis where bspart.PARTID=inv.PARTID and inpart.PARTID=inv.PARTID and inpart.PARTID=dis.PARTID  and inv.carmake =? and bspart.cartypeid=? "
+				+" and inv.SERVICECENTERID=? and  (inv.QUANTITY-inv.THRESHOLD)<bspart.QUANTITY and   bspart.BID in "+bid;
+				
+				
+				DatabaseUtil db = new DatabaseUtil();
 		try {
 			Connection conn=db.establishConnection();
 		
 			statement = conn.prepareStatement(qry);
-			statement.setInt(1,service.getCenterId());
-			statement.setInt(2,service.getMid());
+			statement.setInt(3,service.getCenterId());
+			statement.setString(1,service.getCar().getMake());
+			statement.setInt(2,service.getCar().getCarTypeID());
 			ResultSet rs = statement.executeQuery();
 			
 			
@@ -34,8 +46,11 @@ public class InventoryDao {
 				{
 				Part ps=new Part();
 				ps.setPartID(rs.getInt("PARTID"));
-				ps.setMinQuantity(rs.getInt("MINQTYORDER"));
+				ps.setQuantity(Math.max(rs.getInt("reqQuant"),rs.getInt("MINQTYORDER")));
+				ps.setDistributorId(rs.getString("did"));
 				ps.setDeliveryTime(rs.getInt("DELIVERYTIME"));
+				ps.setAltcenter(rs.getInt("inventorynext"));
+				ps.setServiceCenterId(service.getCenterId());
 				parts.add(ps);
 				}
 			

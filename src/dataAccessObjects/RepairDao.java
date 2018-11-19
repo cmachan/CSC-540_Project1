@@ -1,6 +1,7 @@
 package dataAccessObjects;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -101,6 +102,50 @@ public class RepairDao {
 	
 
 	public void placeOrder(ArrayList<Part> parts) {
+		String qry = "Insert into CAR_ORDER(ODATE,QTY,CENTERID,DISTRIBUTORID,STATUS,REQCENTERID,PARTID,EXPECTDELDATE) values(CURRENT_DATE,?,?,?,?,?,?,?)";
+		PreparedStatement statement = null;
+		Connection conn=null;
+		DatabaseUtil db = new DatabaseUtil();
+		DateFormat dateFormat2 = new SimpleDateFormat("HH:mm:ss");
+		for (int i=0;i<parts.size();i++) {
+			Part part=parts.get(i);
+			try {
+				conn=db.establishConnection();
+
+				statement = conn.prepareStatement(qry);
+				statement.setInt(1, part.getQuantity());
+				statement.setInt(2, part.getServiceCenterId());
+				statement.setString(4, CONSTANTS.STATUS_PENDING);
+				statement.setInt(6,part.getPartID());
+				statement.setDate(7,new Date(EmployeeDao.addDays(new java.util.Date(),part.getDeliveryTime()).getTime()));
+			if (part.getAltcenter()!=-1) {
+				statement.setString(3, null);
+				statement.setInt(5, part.getAltcenter());
+			}else {
+				statement.setString(5, null);
+				statement.setString(3, part.getDistributorId());
+			}
+			
+				
+				
+				statement.executeUpdate();
+				
+			        
+
+				if (statement != null) {
+					statement.close();
+				}
+
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}finally {
+				db.closeConnection();
+				
+
+			}
+		}
+		
 		
 		
 	}

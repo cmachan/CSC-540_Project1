@@ -243,10 +243,16 @@ public class CustomerView {
 		Car car=new Car();
 		car.setcId(customer.getcId());
 		System.out.println("--------Register Car-------");
+		
 		while(input.equals("")) {
+			
+			System.out.println("Enter Cancel to go back");
 			System.out.println("A. Enter Licence Plate ");
 			System.out.print(">");
 			input=(console.nextLine()).trim();
+			if (input.equalsIgnoreCase("cancel")) {
+				return CONSTANTS.CUSTOMER_MAIN_MENU;
+			}
 			if (input.equals("")){
 				System.out.println("< Error: Licence plate is mandatory ");
 			}
@@ -255,9 +261,13 @@ public class CustomerView {
 		input="";
 		Date date1=null;
 		while(input.equals("")) {
+			System.out.println("Enter Cancel to go back");
 			System.out.println("B. Enter Purchase date in format-MM/dd/yyyy ");
 			System.out.print(">");
 			input=(console.nextLine()).trim();
+			if (input.equalsIgnoreCase("cancel")) {
+				return CONSTANTS.CUSTOMER_MAIN_MENU;
+			}
 			if (input.equals("")){
 				System.out.println("< Error: Purchase date is mandatory ");
 			}
@@ -278,9 +288,13 @@ public class CustomerView {
 		input="";
 		
 		while(input.equals("")) {
+			System.out.println("Enter Cancel to go back");
 			System.out.println("C. Enter Make of the car ");
 			System.out.print(">");
 			input=(console.nextLine()).trim();
+			if (input.equalsIgnoreCase("cancel")) {
+				return CONSTANTS.CUSTOMER_MAIN_MENU;
+			}
 			if (input.equals("")){
 				System.out.println("< Error: Make is mandatory ");
 			}
@@ -292,9 +306,13 @@ public class CustomerView {
 		input="";
 		
 		while(input.equals("")) {
+			System.out.println("Enter Cancel to go back");
 			System.out.println("D. Enter Model of the car ");
 			System.out.print(">");
 			input=(console.nextLine()).trim();
+			if (input.equalsIgnoreCase("cancel")) {
+				return CONSTANTS.CUSTOMER_MAIN_MENU;
+			}
 			if (input.equals("")){
 				System.out.println("< Error: Model is mandatory ");
 			}
@@ -307,9 +325,13 @@ public class CustomerView {
 		input="";
 		int year=0;
 		while(input.equals("")) {
+			System.out.println("Enter Cancel to go back");
 			System.out.println("E. Enter Year of the car ");
 			System.out.print(">");
 			input=(console.nextLine()).trim();
+			if (input.equalsIgnoreCase("cancel")) {
+				return CONSTANTS.CUSTOMER_MAIN_MENU;
+			}
 			if (input.equals("")){
 				System.out.println("< Error: Year is mandatory ");
 			}
@@ -334,9 +356,13 @@ public class CustomerView {
 		input="";
 		int mileage=0;
 		while(input.equals("")) {
+			System.out.println("Enter Cancel to go back");
 			System.out.println("F. Current mileage ");
 			System.out.print(">");
 			input=(console.nextLine()).trim();
+			if (input.equalsIgnoreCase("cancel")) {
+				return CONSTANTS.CUSTOMER_MAIN_MENU;
+			}
 			if (input.equals("")){
 				System.out.println("< Error: mileage is mandatory ");
 			}
@@ -354,10 +380,13 @@ public class CustomerView {
 		
 		
 		input="";
-		
+			System.out.println("Enter Cancel to go back");
 			System.out.println("G. Last Service Date ");
 			System.out.print(">");
 			input=(console.nextLine()).trim();
+			if (input.equalsIgnoreCase("cancel")) {
+				return CONSTANTS.CUSTOMER_MAIN_MENU;
+			}
 			if (!input.equals(""))  {
 
 			try {
@@ -513,9 +542,13 @@ public class CustomerView {
 		service.setcId(customer.getcId());
 		System.out.println("--------Schedule the service -------");
 		while(input.equals("")) {
+			System.out.println("Enter Cancel to go back");
 			System.out.println("A. Enter Licence Plate ");
 			System.out.print(">");
 			input=(console.nextLine()).trim();
+			if (input.equalsIgnoreCase("cancel")) {
+				return CONSTANTS.CUSTOMER_SERVICE;
+			}
 			if (input.equals("")){
 				System.out.println("< Error: Licence plate is mandatory ");
 			}
@@ -525,9 +558,13 @@ public class CustomerView {
 		input="";
 		int mileage=0;
 		while(input.equals("")) {
+			System.out.println("Enter Cancel to go back");
 			System.out.println("B. Enter current mileage of the car ");
 			System.out.print(">");
 			input=(console.nextLine()).trim();
+			if (input.equalsIgnoreCase("cancel")) {
+				return CONSTANTS.CUSTOMER_SERVICE;
+			}
 			if (input.equals("")){
 				System.out.println("< Error: current mileage is mandatory ");
 			}
@@ -546,6 +583,7 @@ public class CustomerView {
 		input="";
 		EmployeeDao empDao=new EmployeeDao();
 		ArrayList<Employee> mechanics=empDao.getAllMechanic(customer.getCenterId());
+		System.out.println("Enter Cancel to go back");
 		System.out.println("G. Select Mechanic (Enter 1-"+mechanics.size()+"): ");
 		for (int i =0;i<mechanics.size();i++) {
 			
@@ -558,6 +596,9 @@ public class CustomerView {
 				
 				System.out.print(">");
 				input=console.nextLine().trim();
+				if (input.equalsIgnoreCase("cancel")) {
+					return CONSTANTS.CUSTOMER_SERVICE;
+				}
 				if (input.equals("")){
 					break;
 				}
@@ -677,6 +718,9 @@ public class CustomerView {
 				service.setFault(fault);
 				controller.getFaultDetails(fault,service.getCar().getCarTypeID(),service.getcId(),service.getCar().getMake());
 				ArrayList<Employee> mechanics=controller.findDates(service,new Date());
+				if (mechanics==null) {
+					viewServiceSchedule(customer);
+				}
 				
 				viewScheduleRepair2(service,mechanics,customer,fault);
 			}else {
@@ -816,6 +860,9 @@ public class CustomerView {
 		if (choice==1) {
 			if (controller.validateCar(service)) {
 				ArrayList<Employee> mechanics=controller.findDates(service,new Date());
+				if (mechanics==null) {
+					viewServiceSchedule(customer);
+				}
 				viewScheduleMaintenance2(service,mechanics,customer);
 			}else {
 				System.out.println("Car not valid Enter again");

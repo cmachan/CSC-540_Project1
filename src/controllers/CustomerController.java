@@ -157,6 +157,7 @@ public class CustomerController  {
 			baseServices= rDao.getBaseServices(service);
 		}
 		
+		service.setBaseServices(baseServices);
 		
 		
 		ArrayList<Part> parts= in.validateParts(service);
@@ -167,7 +168,9 @@ public class CustomerController  {
 				max=Math.max(max, parts.get(i).getDeliveryTime());
 				
 			}
+			
 			rDao.placeOrder(parts);
+			System.out.println(" Parts not available for the service, Please try again after "+max+" days.");
 			
 		}
 		else {
@@ -209,8 +212,7 @@ public class CustomerController  {
 			emps.get(1).setEndTime(EmployeeDao.addHours(emps.get(1).getStartTime(),hours));
 			//rDao.checkUpdateDates(hours,service.getCenterId());
 			
-			service.setBaseServices(baseServices);
-			
+		
 		}
 		
 		
