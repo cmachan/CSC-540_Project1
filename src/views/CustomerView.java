@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import constants.CONSTANTS;
+import constants.Utility;
 import controllers.CustomerController;
 import dataAccessObjects.EmployeeDao;
 import models.BaseService;
@@ -189,32 +190,62 @@ public class CustomerView {
 					
 				}
 				else {
+					String input="";
 					switch(choice) {
 					case 1: 
 						System.out.println("> Enter new Name:  ");
-						System.out.println(">");
+						input="";
+						while(input.equals("")) {
+							input=(console.nextLine()).trim();
+							if (input.equals("")){
+								System.out.println("Error: Name is blank. ");
+							}
+						}
 						
-						customer.setcName((console.nextLine().trim()));
+						customer.setcName(input);
 						break;
 					case 2: 
 						System.out.println("> Enter new Address:  ");
-						System.out.println(">");
-						customer.setAddress((console.nextLine().trim()));
+						input="";
+						while(input.equals("")) {
+							input=(console.nextLine()).trim();
+							if (input.equals("")){
+								System.out.println("Error: Address is blank. ");
+							}
+						}
+						customer.setAddress(input);
 						break;	
 					case 3: 
 						System.out.println("> Enter new Phone Number:  ");
-						System.out.println(">");
-						try {
-						customer.setPhone(Long.parseLong(console.nextLine().trim()));
-						}catch(NumberFormatException e) {
-							System.out.println("< Error: Enter Number only ");
+						input="";
+						while(input.equals("")) {
+							input=(console.nextLine()).trim();
+							
+							if (input.equals("")){
+								System.out.println("Error: Phone Number is blank. ");
+							}else if(!Utility.isValidPhoneNumber(input)) {
+								System.out.println("Error: Phone Number not correct ");
+								input="";
+							}
 						}
+						input=input.replaceAll("-", "");
+						customer.setPhone(Long.parseLong(input.replaceAll(".", "")));
 						break;	
 						
 					case 4: 
 						System.out.println("> Enter new Password:  ");
-						System.out.println(">");
-						customer.setPassword((console.nextLine().trim()));
+						input="";
+						while(input.equals("")) {
+						
+							input=(console.nextLine()).trim();
+							
+							if (input.equals("")){
+								System.out.println("Error: Password is blank. ");
+							}
+							
+				
+						}
+						customer.setPassword(input);
 						break;	
 					case 5: 
 						flag=false;
@@ -245,10 +276,11 @@ public class CustomerView {
 		car.setcId(customer.getcId());
 		System.out.println("--------Register Car-------");
 		
+		System.out.println("Enter Cancel to go back");
+		System.out.println("A. Enter Licence Plate ");
 		while(input.equals("")) {
 			
-			System.out.println("Enter Cancel to go back");
-			System.out.println("A. Enter Licence Plate ");
+			
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
@@ -260,10 +292,10 @@ public class CustomerView {
 		}
 		car.setLicensePlate(input);
 		input="";
+		System.out.println("B. Enter Purchase date in format-MM/dd/yyyy ");
 		Date date1=null;
 		while(input.equals("")) {
-			System.out.println("Enter Cancel to go back");
-			System.out.println("B. Enter Purchase date in format-MM/dd/yyyy ");
+			
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
@@ -271,26 +303,29 @@ public class CustomerView {
 			}
 			if (input.equals("")){
 				System.out.println("< Error: Purchase date is mandatory ");
+			}else if (!Utility.isDateValid(input)) {
+				System.out.println("< Error: Date not in correct format ");
+				input="";	
+			}else {
+				try {
+					date1=new SimpleDateFormat("MM/dd/yyyy").parse(input);  
+				   
+					}
+					catch(ParseException e) {
+						System.out.println("< Error: Date not in correct format ");
+						input="";	
+					}
 			}
 			
-			try {
-				date1=new SimpleDateFormat("MM/dd/yyyy").parse(input);  
-			   
-				}
-				catch(ParseException e) {
-					System.out.println("< Error: Date not in correct format ");
-					input="";	
-				}
 		
 		}
 		
 		car.setDateOfPurchase(date1);
 		
 		input="";
-		
+		System.out.println("C. Enter Make of the car(TOYOTA,NISSAN,HONDA) ");
 		while(input.equals("")) {
-			System.out.println("Enter Cancel to go back");
-			System.out.println("C. Enter Make of the car ");
+			
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
@@ -298,36 +333,85 @@ public class CustomerView {
 			}
 			if (input.equals("")){
 				System.out.println("< Error: Make is mandatory ");
+			}else if(!input.equalsIgnoreCase("TOYOTA") && !input.equalsIgnoreCase("NISSAN") && !input.equalsIgnoreCase("HONDA")) {
+				System.out.println("< Error: Make is not correct ");
+				input="";
 			}
 			
 		}
 		
 		car.setMake(input.toUpperCase());
-		
-		input="";
-		
-		while(input.equals("")) {
-			System.out.println("Enter Cancel to go back");
-			System.out.println("D. Enter Model of the car ");
-			System.out.print(">");
-			input=(console.nextLine()).trim();
-			if (input.equalsIgnoreCase("cancel")) {
-				return CONSTANTS.CUSTOMER_MAIN_MENU;
-			}
-			if (input.equals("")){
-				System.out.println("< Error: Model is mandatory ");
+		if (car.getMake().equals("TOYOTA")) {
+			input="";
+			System.out.println("D. Enter Model of the car(Corolla,Prius) ");
+			while(input.equals("")) {
+			
+				System.out.print(">");
+				input=(console.nextLine()).trim();
+				if (input.equalsIgnoreCase("cancel")) {
+					return CONSTANTS.CUSTOMER_MAIN_MENU;
+				}
+				if (input.equals("")){
+					System.out.println("< Error: Model is mandatory ");
+				}else if(!input.equalsIgnoreCase("Corolla") && !input.equalsIgnoreCase("Prius")) {
+					System.out.println("< Error: Model is not correct ");
+					input="";
+				}
+				
 			}
 			
+			car.setModel(input.toUpperCase());
+			
+		}else if (car.getMake().equals("NISSAN")) {
+			input="";
+			System.out.println("D. Enter Model of the car(Altima,Rogue) ");
+			while(input.equals("")) {
+			
+				System.out.print(">");
+				input=(console.nextLine()).trim();
+				if (input.equalsIgnoreCase("cancel")) {
+					return CONSTANTS.CUSTOMER_MAIN_MENU;
+				}
+				if (input.equals("")){
+					System.out.println("< Error: Model is mandatory ");
+				}else if(!input.equalsIgnoreCase("Altima") && !input.equalsIgnoreCase("Rogue")) {
+					System.out.println("< Error: Model is not correct ");
+					input="";
+				}
+				
+			}
+			
+			car.setModel(input.toUpperCase());
+			
+		}else if (car.getMake().equals("HONDA")) {
+			input="";
+			System.out.println("D. Enter Model of the car(Accord,Civic) ");
+			while(input.equals("")) {
+			
+				System.out.print(">");
+				input=(console.nextLine()).trim();
+				if (input.equalsIgnoreCase("cancel")) {
+					return CONSTANTS.CUSTOMER_MAIN_MENU;
+				}
+				if (input.equals("")){
+					System.out.println("< Error: Model is mandatory ");
+				}else if(!input.equalsIgnoreCase("Accord") && !input.equalsIgnoreCase("Civic")) {
+					System.out.println("< Error: Model is not correct ");
+					input="";
+				}
+				
+			}
+			
+			car.setModel(input.toUpperCase());
+			
 		}
-		
-		car.setModel(input.toUpperCase());
 		
 		
 		input="";
 		int year=0;
+		System.out.println("E. Enter Car Model year ");
 		while(input.equals("")) {
-			System.out.println("Enter Cancel to go back");
-			System.out.println("E. Enter Car Model year ");
+	
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
@@ -346,6 +430,7 @@ public class CustomerView {
 			}
 			}catch(NumberFormatException e) {
 				System.out.println("< Error: Year is not correct, should be a number. ");
+				input="";
 			}
 			
 			
@@ -353,12 +438,12 @@ public class CustomerView {
 		
 		car.setMakeYear(year);
 		
-		
+
+		System.out.println("F. Current mileage ");
 		input="";
 		int mileage=0;
 		while(input.equals("")) {
-			System.out.println("Enter Cancel to go back");
-			System.out.println("F. Current mileage ");
+			
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
@@ -371,6 +456,7 @@ public class CustomerView {
 				mileage=Integer.parseInt(input);
 			}catch(NumberFormatException e) {
 				System.out.println("< Error: mileage is not correct, should be a number. ");
+				input="";
 			}
 			
 			
@@ -381,24 +467,35 @@ public class CustomerView {
 		
 		
 		input="";
-			System.out.println("Enter Cancel to go back");
+		boolean flag=false;
+		
 			System.out.println("G. Last Service Date ");
 			System.out.print(">");
+			do {
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
 				return CONSTANTS.CUSTOMER_MAIN_MENU;
 			}
 			if (!input.equals(""))  {
-
-			try {
-				date1=new SimpleDateFormat("MM/dd/yyyy").parse(input);  
-			   
-				}
-				catch(ParseException e) {
+				 if (!Utility.isDateValid(input)) {
 					System.out.println("< Error: Date not in correct format ");
-					input="";	
+					input="";
+					flag=true;
+				}else {
+					try {
+						date1=new SimpleDateFormat("MM/dd/yyyy").parse(input);  
+					   flag=false;
+						}
+						catch(ParseException e) {
+							System.out.println("< Error: Date not in correct format ");
+							input="";	
+							flag=true;
+						}
 				}
 			}
+			}while(flag);
+				
+
 			
 		
 		
@@ -542,9 +639,11 @@ public class CustomerView {
 		Car car=new Car();
 		service.setcId(customer.getcId());
 		System.out.println("--------Schedule the service -------");
+		System.out.println("Enter Cancel to go back");
+		System.out.println("A. Enter Licence Plate ");
 		while(input.equals("")) {
-			System.out.println("Enter Cancel to go back");
-			System.out.println("A. Enter Licence Plate ");
+			
+			
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
@@ -558,9 +657,9 @@ public class CustomerView {
 		car.setcId(customer.getcId());
 		input="";
 		int mileage=0;
+
+		System.out.println("B. Enter current mileage of the car ");
 		while(input.equals("")) {
-			System.out.println("Enter Cancel to go back");
-			System.out.println("B. Enter current mileage of the car ");
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {

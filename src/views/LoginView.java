@@ -229,6 +229,7 @@ public class LoginView {
 				return CONSTANTS.LOGIN_MAIN_MENU;
 			}
 			if (input.equals("")){
+				System.out.println("Error: Phone Number is mandatory ");
 			}else if(!Utility.isValidPhoneNumber(input)) {
 				System.out.println("Error: Phone Number not correct ");
 				input="";
