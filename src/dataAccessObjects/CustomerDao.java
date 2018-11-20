@@ -14,28 +14,28 @@ import models.Customer;
 public class CustomerDao {
 	
 	
-	public Customer getCustomerProfile(int id) {
+	public Customer getCustomerProfile(String email) {
 		PreparedStatement statement = null;
 		Customer  customer=null;
-		String qry = "SELECT * FROM CUSTOMER  WHERE CID = ?" ;
+		String qry = "SELECT * FROM CUSTOMER  WHERE email = ?" ;
 		DatabaseUtil db = new DatabaseUtil();
 		try {
 			Connection conn=db.establishConnection();
 		
 			statement = conn.prepareStatement(qry);
-			statement.setInt(1, id);
+			statement.setString(1, email);
 			ResultSet rs = statement.executeQuery();
 			
 			
 			if (rs.next())
 				{
-				customer=new Customer(id);
+				customer=new Customer(rs.getInt("CID"));
 				customer.setAddress(rs.getString("ADDRESS"));
 				customer.setcName(rs.getString("CNAME"));
 				customer.setEmail(rs.getString("EMAIL"));
 				customer.setPhone(rs.getLong("PHONE"));
 				CarDao carDao=new CarDao();
-				customer.setCarsOwned(carDao.getCarsOwnedByCustomer(id));
+				customer.setCarsOwned(carDao.getCarsOwnedByCustomer(customer.getcId()));
 		
 				}
 			

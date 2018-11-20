@@ -26,6 +26,7 @@ public class CONSTANTS {
 	public static final String CUSTOMER_INVOICE= CONSTANTS.CUSTOMER_MAIN_MENU+"4";
 	public static final String CUSTOMER_LOGOUT= CONSTANTS.CUSTOMER_MAIN_MENU+"5";
 	public static final String CUSTOMER_UPDATE_PROFILE = CONSTANTS.CUSTOMER_PROFILE+"2";
+	public static final String CUSTOMER_SERVICE_SCHEDULE2 = CONSTANTS.CUSTOMER_SERVICE_SCHEDULE+"2";
 	public static final String STATUS_PENDING = "Pending";
 	
 	/*
@@ -53,7 +54,10 @@ public class CONSTANTS {
 	public static final String RECPTIONIST_INVOICE = "RECEPTION_MAIN_MENU7";
 	public static final String RECPTIONIST_UPDATE_INVENTORY = "RECEPTION_MAIN_MENU8";
 	public static final String RECPTIONIST_RECORD_DELIVERY = "RECEPTION_MAIN_MENU9";
-
+	public static final String LOGIN_MAIN_MENU = "LOGIN_MAIN_MENU";
 	
-	
+	public static final String LOGIN_PAGE = LOGIN_MAIN_MENU+1;
+	public static final String SIGN_UP_PAGE = LOGIN_MAIN_MENU+2;
+	public static final String LOGIN_VERIFICATION = LOGIN_PAGE+1;
+	public static final String EXIT = "LOGIN_MAIN_MENU"+3;
 }

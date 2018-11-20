@@ -39,9 +39,9 @@ public class CustomerController  {
 		
 	}
 	
-	public Customer getCustomerProfile(int id) {
+	public Customer getCustomerProfile(String email ) {
 		 CustomerDao cusDao=new CustomerDao();
-		 Customer customer=cusDao.getCustomerProfile(id);
+		 Customer customer=cusDao.getCustomerProfile(email);
 		 this.customer=customer;
 		 return customer;
 		 
@@ -81,7 +81,7 @@ public class CustomerController  {
 			choice=view.displayProfileMenu();
 			break;
 		case CONSTANTS.CUSTOMER_VIEW_PROFILE:
-			getCustomerProfile(customer.getcId());
+			getCustomerProfile(customer.getEmail());
 			choice=view.viewProfile(customer);
 			break;
 		case CONSTANTS.CUSTOMER_UPDATE_PROFILE:
@@ -117,7 +117,9 @@ public class CustomerController  {
 			
 				choice=view.viewServiceInvoice(completedservices,customer);
 				break;
-			
+		case CONSTANTS.CUSTOMER_SERVICE_SCHEDULE2:
+		 	choice=view.viewSchedule(customer);
+			break;	
 					
 		default:
 			return;

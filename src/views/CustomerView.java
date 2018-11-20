@@ -327,7 +327,7 @@ public class CustomerView {
 		int year=0;
 		while(input.equals("")) {
 			System.out.println("Enter Cancel to go back");
-			System.out.println("E. Enter Year of the car ");
+			System.out.println("E. Enter Car Model year ");
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
@@ -625,14 +625,18 @@ public class CustomerView {
 			service.setMechanicId(mechanics.get(mechanic-1).geteId());
 		}
 		
+		customer.setService(service);
+		return CONSTANTS.CUSTOMER_SERVICE_SCHEDULE2;
+	}
 		
+	public String viewSchedule(Customer customer) {
 		
-		
+		Repair service=customer.getService();
 		System.out.println("--------MENU-------");
 		System.out.println("1. Schedule Maintenance ");
 		System.out.println("2. Schedule Repair ");
 		System.out.println("3. Go Back ");
-		
+		int choice=0;
 		while(true){
 			try {
 				
@@ -673,7 +677,7 @@ public class CustomerView {
 		return CONSTANTS.CUSTOMER_SERVICE;
 	}
 
-	private void viewScheduleRepair(Repair service, ArrayList<Fault> faults, Customer customer) {
+	private String viewScheduleRepair(Repair service, ArrayList<Fault> faults, Customer customer) {
 		
 		System.out.println("--------Schedule Repair (Page 1)-------");
 		for (int i=0;i<faults.size();i++) {
@@ -710,7 +714,7 @@ public class CustomerView {
 		
 		
 		if (choice==faults.size()+1) {
-			
+			return CONSTANTS.CUSTOMER_SERVICE_SCHEDULE2;
 		}else {
 			
 			if (controller.validateCar(service)) {
@@ -719,7 +723,7 @@ public class CustomerView {
 				controller.getFaultDetails(fault,service.getCar().getCarTypeID(),service.getcId(),service.getCar().getMake());
 				ArrayList<Employee> mechanics=controller.findDates(service,new Date());
 				if (mechanics==null) {
-					viewServiceSchedule(customer);
+					return CONSTANTS.CUSTOMER_SERVICE_SCHEDULE2;
 				}
 				
 				viewScheduleRepair2(service,mechanics,customer,fault);
@@ -728,7 +732,7 @@ public class CustomerView {
 				viewServiceSchedule(customer) ;
 			}
 			
-			
+			return CONSTANTS.CUSTOMER_SERVICE_SCHEDULE2;
 			
 		}
 		
@@ -815,7 +819,6 @@ public class CustomerView {
 			
 			controller.saveRepair(service,mechanics.get(dateSelected-1),fault);
 			System.out.println("Repair Scheduled");
-			viewServiceSchedule(customer);
 			
 		}else if(choice==2) {
 			ArrayList<Fault> faults=controller.getAllFaults(service);
@@ -825,7 +828,7 @@ public class CustomerView {
 		}
 	}
 
-	private void viewScheduleMaintenance(Repair service, Customer customer) {
+	private String viewScheduleMaintenance(Repair service, Customer customer) {
 		System.out.println("--------Schedule Maintenance (Page 1) -------");
 		System.out.println("1. Find Service Date ");
 		System.out.println("2. Go Back");
@@ -870,15 +873,14 @@ public class CustomerView {
 			}
 			
 			
-		}else if(choice==2) {
-			viewServiceSchedule(customer);
-			
-			
 		}
+		return CONSTANTS.CUSTOMER_SERVICE_SCHEDULE2;
+			
+			
 		
 	}
 
-	private void viewScheduleMaintenance2(Repair service, ArrayList<Employee> mechanics, Customer customer) {
+	private String viewScheduleMaintenance2(Repair service, ArrayList<Employee> mechanics, Customer customer) {
 		// TODO Auto-generated method stub
 		System.out.println("--------Schedule Maintenance Page2-------");
 		for (int i=0;i<mechanics.size();i++) {
@@ -948,11 +950,11 @@ public class CustomerView {
 			System.out.println("Service scheduled \n\n");
 			viewServiceSchedule(customer);
 			
-		}else if(choice==2) {
-			viewScheduleMaintenance(service,customer);
-			
-			
 		}
+		return viewScheduleMaintenance(service,customer);
+			
+			
+		
 	}
 
 	public String viewServiceReSchedule(ArrayList<Repair> services, Customer customer) {
