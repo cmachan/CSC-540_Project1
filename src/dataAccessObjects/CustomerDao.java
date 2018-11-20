@@ -78,6 +78,8 @@ public class CustomerDao {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
+		} finally {
+			db.closeConnection();
 		}
 		return customer;
 	}

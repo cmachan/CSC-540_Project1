@@ -338,10 +338,12 @@ public class EmployeeDao {
 			e.printStackTrace();
 		}finally {
 				try {
+					db.closeConnection();
 					if(st != null)
 						st.close();
 				} catch (SQLException e) {
 					e.printStackTrace();
+				
 				}
 		}
 	}
@@ -371,6 +373,7 @@ public class EmployeeDao {
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}finally {
+				db.closeConnection();
 				try {
 					if(rs != null)
 						rs.close();

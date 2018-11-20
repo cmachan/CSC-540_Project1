@@ -400,9 +400,6 @@ public class CustomerController  {
 		emps.get(1).setEndTime(EmployeeDao.addHours(emps.get(1).getStartTime(),hour));
 		//rDao.checkUpdateDates(hours,service.getCenterId());
 		
-		
-	
-	
 	
 	// TODO Auto-generated method stub
 	return emps;

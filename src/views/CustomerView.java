@@ -631,7 +631,6 @@ public class CustomerView {
 		System.out.println("--------MENU-------");
 		System.out.println("1. Schedule Maintenance ");
 		System.out.println("2. Schedule Repair ");
-		
 		System.out.println("3. Go Back ");
 		
 		while(true){

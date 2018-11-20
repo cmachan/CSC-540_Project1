@@ -55,6 +55,8 @@ public class RepairDao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			db.closeConnection();
 		}
 		return repairs;
 		
@@ -103,6 +105,8 @@ public class RepairDao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			db.closeConnection();
 		}
 		return baseServices;
 	}

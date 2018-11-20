@@ -8,12 +8,18 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import constants.CONSTANTS;
+import dataAccessObjects.CustomerDao;
+import dataAccessObjects.RepairDao;
 import databaseUtilities.DatabaseUtil;
 import models.Car;
+import models.Customer;
 import models.Employee;
+import models.Repair;
+import views.CustomerView;
 import views.EmployeeView;
 import views.ReceptionistView;
 
@@ -112,6 +118,7 @@ public class ReceptionistController {
 			System.out.println("Car Registeration Fail");
 		}finally {
 				try {
+					dbUtil.closeConnection();
 					if(st != null)
 						st.close();
 				} catch (SQLException e) {
@@ -142,13 +149,13 @@ public class ReceptionistController {
 				view.registerCar();
 				break;
 			case CONSTANTS.RECPTIONIST_SERVICE_HISTORY:
-				serviceHistoryDisplayController();
+				viewServiceHistory();
 				break;
 			case CONSTANTS.RECPTIONIST_SCHED_SERVICE:
-				
+				scheduleController();
 				break;
 			case CONSTANTS.RECPTIONIST_RESCHED_SERVICE:
-				
+				rescheduleController();
 				break;
 			case CONSTANTS.RECPTIONIST_INVOICE:
 				
@@ -166,6 +173,68 @@ public class ReceptionistController {
 		view.displayReceptionistMainMenu();
 	}
 	
+	
+	public void scheduleController() {
+		System.out.print("Customer Email Address: ");
+		String email = scan.nextLine();
+		
+		CustomerDao custDao = new CustomerDao();
+		Customer cust = custDao.getCustomerProfileByEmail(email);
+		if(cust != null) {
+			cust.setCenterId(1001); //HardCoded Needs to be changed
+			CustomerView custView = new CustomerView();
+			custView.setController(new CustomerController(custView));
+			String choice = custView.viewServiceSchedule(cust);
+			if(choice.equals(CONSTANTS.CUSTOMER_SERVICE)) {
+				view.displayReceptionistMainMenu();
+			}
+		}else {
+			System.out.print("Customer Doesn't Exist");
+		}
+	}
+	
+	public void viewServiceHistory() {
+		
+		System.out.print("Customer Email Address: ");
+		String email = scan.nextLine();
+		
+		CustomerDao custDao = new CustomerDao();
+		Customer cust = custDao.getCustomerProfileByEmail(email);
+		if(cust != null) {
+			cust.setCenterId(1001); //HardCoded Needs to be changed
+			CustomerView custView = new CustomerView();
+			custView.setController(new CustomerController(custView));
+			RepairDao repairDao = new RepairDao();
+			ArrayList<Repair> repairs = repairDao.getServiceHistory(cust.getcId());
+			String choice=custView.viewServiceHistory(repairs);
+			if(choice.equals(CONSTANTS.CUSTOMER_SERVICE)) {
+				view.displayReceptionistMainMenu();
+			}
+		}else {
+			System.out.print("Customer Doesn't Exist");
+		}
+	}
+	
+	public void rescheduleController() {
+		System.out.print("Customer Email Address: ");
+		String email = scan.nextLine();
+		
+		CustomerDao custDao = new CustomerDao();
+		Customer cust = custDao.getCustomerProfileByEmail(email);
+		if(cust != null) {
+			cust.setCenterId(1001); //HardCoded Needs to be changed
+			CustomerView custView = new CustomerView();
+			custView.setController(new CustomerController(custView));
+			RepairDao repair=new RepairDao();
+			ArrayList<Repair> upcomingServices = repair.getUpcomingServices(cust.getcId());
+			String choice = custView.viewServiceReSchedule(upcomingServices,cust);
+			if(choice.equals(CONSTANTS.CUSTOMER_SERVICE)) {
+				view.displayReceptionistMainMenu();
+			}
+		}else {
+			System.out.print("Customer Doesn't Exist");
+		}
+	}
 	
 	public void updateInventory() {
 		System.out.println("Task Finished Running");
@@ -224,6 +293,7 @@ public class ReceptionistController {
 			System.out.println("Order Status Updation Failed");
 		}finally {
 				try {
+					dbUtil.closeConnection();
 					if(st != null)
 						st.close();
 				} catch (SQLException e) {

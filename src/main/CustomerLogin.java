@@ -12,14 +12,14 @@ import views.ReceptionistView;
 
 public class CustomerLogin {
 	public static void main(String args[]) throws Exception {
-		CustomerView customerView=new CustomerView();
-		CustomerController customerController=new CustomerController(customerView);
-		customerView.setController(customerController);
-		Customer customer=customerController.getCustomerProfile(1);
-		customer.setCenterId(1001);
-		if (customer!=null) {
-			customerController.displayMainMenu();
-		}
+//		CustomerView customerView=new CustomerView();
+//		CustomerController customerController=new CustomerController(customerView);
+//		customerView.setController(customerController);
+//		Customer customer=customerController.getCustomerProfile(1);
+//		customer.setCenterId(1001);
+//		if (customer!=null) {
+//			customerController.displayMainMenu();
+//		}
 //		EmployeeView empView = new EmployeeView();
 //		EmployeeController empController = new EmployeeController(empView);
 //		empView.setController(empController);
@@ -30,10 +30,10 @@ public class CustomerLogin {
 //		}
 		
 		
-	//	ReceptionistView recView = new ReceptionistView();
-	//	ReceptionistController recController = new ReceptionistController(recView);
-	//	recView.setController(recController);
-	//	recView.displayReceptionistMainMenu();
+		ReceptionistView recView = new ReceptionistView();
+		ReceptionistController recController = new ReceptionistController(recView);
+		recView.setController(recController);
+		recView.displayReceptionistMainMenu();
 		
 	}
 }
