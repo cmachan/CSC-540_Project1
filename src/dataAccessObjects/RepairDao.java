@@ -16,6 +16,7 @@ import databaseUtilities.DatabaseUtil;
 import models.BaseService;
 import models.Car;
 import models.Fault;
+import models.Invoice;
 import models.Repair;
 
 public class RepairDao {
@@ -67,7 +68,12 @@ public class RepairDao {
 		diffMileage=diffMileage/1000;
 		PreparedStatement statement = null;
 		ArrayList<BaseService> baseServices=new ArrayList<BaseService>();
-		String qry = "SELECT cs.LASTSERVICE,bs.BID,bs.LABOURCHARGE,bs.HRS,bsms.MID from BASICMAINTENANCEMAP bsms,BASICSERVICE bs left join customer_service cs on bs.BID =cs.BID and cs.CID=? where bsms.BID=bs.BID and  bsms.MID=(select min(MID)   from maintenanceservice  where  MILES>? and CARTYPEID=?)" ;
+		String qry = "SELECT cs.LASTSERVICE,bs.BID,bs.LABOURCHARGE,bs.HRS,bsms.MID from BASICMAINTENANCEMAP bsms,BASICSERVICE bs left join customer_service cs on bs.BID =cs.BID and cs.CID=? where bsms.BID=bs.BID and  bsms.MID="
+				+ "(select MID from ("
+				+ " select max(MID) as MID   from maintenanceservice  where  MILES<? and CARTYPEID=?"
+				+ " union " + 
+				" select min(MID) as MID   from maintenanceservice  where  MILES>? and CARTYPEID=? " + 
+				") where rownum =1)" ;
 		DatabaseUtil db = new DatabaseUtil();
 		try {
 			Connection conn=db.establishConnection();
@@ -76,6 +82,8 @@ public class RepairDao {
 			statement.setInt(1,service.getcId());
 			statement.setInt(2,diffMileage);
 			statement.setInt(3,service.getCar().getCarTypeID());
+			statement.setInt(4,diffMileage);
+			statement.setInt(5,service.getCar().getCarTypeID());
 			ResultSet rs = statement.executeQuery();
 			InventoryDao inv=new InventoryDao();
 			
@@ -570,7 +578,7 @@ public class RepairDao {
 					bs.setLabourCharge(rs.getInt("LABOURCHARGE"));
 					bs.setHour(rs.getFloat("HRS"));
 					bs.setName((rs.getString("bname")));
-					bs.setParts(inv.getParts(bs.getbId(),rs.getInt("cartypeid"),rs.getString("make")));
+					bs.setInvoice(inv.getInvoiceParts(service.getInvoiceNumber(),bs.getbId()));
 					
 					baseServices.add(bs);
 					}
@@ -586,6 +594,48 @@ public class RepairDao {
 			}
 			
 			service.setBaseServices(baseServices);
+			
+		}
+
+		public void saveInvoice(int getrId, ArrayList<Invoice> invoice) {
+
+			String qry = "Insert into INVOICE values(?,?,?,?,?,?)";
+			PreparedStatement statement = null;
+			Connection conn=null;
+			DatabaseUtil db = new DatabaseUtil();
+			for (int i=0;i<invoice.size();i++) {
+				Invoice inv=invoice.get(i);
+				try {
+					conn=db.establishConnection();
+
+				statement = conn.prepareStatement(qry);
+					statement.setString(1, "INVOICE_"+getrId);
+					statement.setInt(2,inv.getPartId() );
+					statement.setInt(3,inv.isWarranty()?1:0 );
+					statement.setFloat(4,inv.getCost() );
+					statement.setInt(5,inv.isFirst()?1:0 );
+					statement.setInt(6,inv.getBid() );
+					statement.executeUpdate();
+					
+				        
+
+					if (statement != null) {
+						statement.close();
+					}
+
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}finally {
+					db.closeConnection();
+					
+
+				}
+			}
+			
+			
+			
+		
 			
 		}
 		

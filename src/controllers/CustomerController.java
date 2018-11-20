@@ -21,6 +21,7 @@ import models.Car;
 import models.Customer;
 import models.Employee;
 import models.Fault;
+import models.Invoice;
 import models.Part;
 import models.Repair;
 import views.CustomerView;
@@ -233,7 +234,8 @@ public class CustomerController  {
 		service.setStartTime(employee.getStartTime());
 		service.setEndTime(employee.getEndTime());
 		service.setMechanicId(employee.geteId());
-		calculateFee(service);
+		ArrayList<Invoice> invoice=new  ArrayList<>();
+		calculateFee(service,invoice);
 		EmployeeDao empDao=new EmployeeDao();
 		empDao.updateMechHours(employee.geteId(),hour);
 		
@@ -246,6 +248,8 @@ public class CustomerController  {
 		int rId=rDao.insertRepair(service);
 		service.setrId(rId);
 		rDao.insertSchedule(service);
+		rDao.saveInvoice(service.getrId(),invoice);
+		
 		CustomerDao  cusDao=new CustomerDao();
 		cusDao.updateCustomerService(service.getcId(),service.getBaseServices(),service.getStartTime(),service.getrId(),false);
 		
@@ -272,7 +276,9 @@ public class CustomerController  {
 		service.setStartTime(employee.getStartTime());
 		service.setEndTime(employee.getEndTime());
 		service.setMechanicId(employee.geteId());
-		calculateFee(service);
+		ArrayList<Invoice> invoice=new  ArrayList<>();
+		calculateFee(service,invoice);
+		
 		EmployeeDao empDao=new EmployeeDao();
 		empDao.updateMechHours(employee.geteId(),hour);
 		CarDao carDao=new CarDao();
@@ -284,18 +290,30 @@ public class CustomerController  {
 		service.setrId(rId);
 		rDao.insertSchedule(service);
 		CustomerDao  cusDao=new CustomerDao();
+		rDao.saveInvoice(service.getrId(),invoice);
 		cusDao.updateCustomerService(service.getcId(),service.getBaseServices(),service.getStartTime(),service.getrId(),false);
 		
 		
 	}
-	private void calculateFee(Repair service) {
+	private void calculateFee(Repair service, ArrayList<Invoice> invoice) {
 		float cost=0;
-		boolean warranty=false;
+		
 		for (int i=0;i<service.getBaseServices().size();i++) {
+			boolean warranty=true;
 			BaseService bs=service.getBaseServices().get(i);
 			if (bs.getLastService()==null) {
 				for (int j=0;j<bs.getParts().size();j++) {
+					
 					cost+=bs.getParts().get(j).getUnitPrice()*bs.getParts().get(j).getQuantity();
+					Invoice inv=new Invoice();
+					
+					inv.setPartId(bs.getParts().get(j).getPartID());
+					inv.setCost(bs.getParts().get(j).getUnitPrice()*bs.getParts().get(j).getQuantity());
+					inv.setFirst(true);
+					inv.setWarranty(false);
+					inv.setBid(bs.getbId());
+					invoice.add(inv);
+					
 				}
 			}
 			else {
@@ -306,11 +324,31 @@ public class CustomerController  {
 				for (int j=0;j<bs.getParts().size();j++) {
 					if (bs.getParts().get(j).getWarranty()==0 || diff>bs.getParts().get(j).getWarranty())
 						{ 	
-							warranty=true;
+							warranty=false;
+							
 							cost+=bs.getParts().get(j).getUnitPrice()*bs.getParts().get(j).getQuantity();
+							Invoice inv=new Invoice();
+							
+							inv.setPartId(bs.getParts().get(j).getPartID());
+							inv.setCost(bs.getParts().get(j).getUnitPrice()*bs.getParts().get(j).getQuantity());
+							inv.setFirst(false);
+							inv.setWarranty(false);
+							inv.setBid(bs.getbId());
+							invoice.add(inv);
 						}
-				if (warranty) {
+					else {
+						Invoice inv=new Invoice();
+						
+						inv.setPartId(bs.getParts().get(j).getPartID());
+						inv.setCost(0);
+						inv.setFirst(false);
+						inv.setWarranty(true);
+						inv.setBid(bs.getbId());
+						invoice.add(inv);
+					}
+				if (!warranty) {
 					cost+=bs.getLabourCharge()*bs.getHour();
+					
 				}
 					
 				

@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import databaseUtilities.DatabaseUtil;
+import models.Invoice;
 import models.Part;
 import models.Repair;
 
@@ -25,7 +26,7 @@ public class InventoryDao {
 		
 		PreparedStatement statement = null;
 		ArrayList<Part> parts=new ArrayList<Part>();
-		String qry = "select bspart.PARTID,inv.MINQTYORDER,dis.did,dis.DELIVERYTIME,inv.QUANTITY,inv.THRESHOLD ,bspart.QUANTITY as reqQuant,(select nvl(SERVICECENTERID,-1) from INVENTORY where (QUANTITY-THRESHOLD)> bspart.QUANTITY and carmake= inv.carmake and partid=inv.PARTID )  \r\n" + 
+		String qry = "select bspart.PARTID,inv.MINQTYORDER,dis.did,dis.DELIVERYTIME,inv.QUANTITY,inv.THRESHOLD ,bspart.QUANTITY as reqQuant,(select nvl(SERVICECENTERID,-1) from INVENTORY where (QUANTITY-THRESHOLD)> bspart.QUANTITY and carmake= inv.carmake and partid=inv.PARTID and  ROWNUM <= 1 )  " + 
 				"as inventorynext from BASICSERVICE_PART bspart,INVENTORY inv,INVENTORY_PARTS inpart, "
 				+" distributor_parts dis where bspart.PARTID=inv.PARTID and inpart.PARTID=inv.PARTID and inpart.PARTID=dis.PARTID  and inv.carmake =? and bspart.cartypeid=? "
 				+" and inv.SERVICECENTERID=? and  (inv.QUANTITY-inv.THRESHOLD)<bspart.QUANTITY and   bspart.BID in "+bid;
@@ -35,9 +36,10 @@ public class InventoryDao {
 			Connection conn=db.establishConnection();
 		
 			statement = conn.prepareStatement(qry);
-			statement.setInt(3,service.getCenterId());
+			
 			statement.setString(1,service.getCar().getMake());
 			statement.setInt(2,service.getCar().getCarTypeID());
+			statement.setInt(3,service.getCenterId());
 			ResultSet rs = statement.executeQuery();
 			
 			
@@ -145,5 +147,46 @@ public class InventoryDao {
 		
 		// TODO Auto-generated method stub
 		
+	}
+
+	public ArrayList<Invoice> getInvoiceParts(String invoiceNumber, int getbId) {
+
+		PreparedStatement statement = null;
+		ArrayList<Invoice> invoices=new ArrayList<Invoice>();
+		String qry = "select inps.name,ini.PARTID,ini.COST,ini.WARRANTY,ini.ISFIRST from invoice ini,inventory_parts inps where ini.invoicenumber=? and ini.bid=? and inps.PARTID=ini.PARTID ";
+		DatabaseUtil db = new DatabaseUtil();
+		try {
+			Connection conn=db.establishConnection();
+		
+			statement = conn.prepareStatement(qry);
+			statement.setString(1,invoiceNumber);
+			statement.setInt(2,getbId);
+			ResultSet rs = statement.executeQuery();
+			
+			
+			while (rs.next())
+				{
+				Invoice ps=new Invoice();
+				ps.setPartId(rs.getInt("PARTID"));
+				ps.setPartName((rs.getString("name")));
+				ps.setCost(rs.getInt("COST"));
+				ps.setWarranty(rs.getInt("WARRANTY")==0?false:true);
+				ps.setFirst(rs.getInt("ISFIRST")==0?false:true);
+				
+				invoices.add(ps);
+				}
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			db.closeConnection();
+			
+
+		}
+		
+		return invoices;
+
 	}
 }

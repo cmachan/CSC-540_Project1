@@ -18,6 +18,7 @@ import models.Car;
 import models.Customer;
 import models.Employee;
 import models.Fault;
+import models.Invoice;
 import models.Repair;
 import oracle.jdbc.Const;
 
@@ -584,7 +585,7 @@ public class CustomerView {
 		EmployeeDao empDao=new EmployeeDao();
 		ArrayList<Employee> mechanics=empDao.getAllMechanic(customer.getCenterId());
 		System.out.println("Enter Cancel to go back");
-		System.out.println("G. Select Mechanic (Enter 1-"+mechanics.size()+"): ");
+		System.out.println("C. Select Mechanic (Enter 1-"+mechanics.size()+"): ");
 		for (int i =0;i<mechanics.size();i++) {
 			
 			System.out.println((i+1) +". "+mechanics.get(i).geteName());
@@ -1177,7 +1178,10 @@ public class CustomerView {
 			
 				System.out.println(">");
 				String id = console.nextLine();
-				
+				System.out.println("Enter Cancel to go back");
+				if (id.equalsIgnoreCase("cancel")) {
+					return;
+				}
 			    service=completedservices.get(id);
 			    if( service==null) {
 					
@@ -1202,17 +1206,47 @@ public class CustomerView {
 		System.out.println(" Mechanic Name: "+ service.getMechanicName());
 		System.out.println(" Services: ");
 		int labourwages=0;
+		int count=0;
 		for (int i=0;i<service.getBaseServices().size();i++) {
 			BaseService bs=service.getBaseServices().get(i);
 			System.out.println("	"+bs.getName()+"");
-			labourwages+=bs.getLabourCharge();
-			for (int j=0;j<bs.getParts().size();j++) {
-			System.out.println("			Part Name:"+bs.getParts().get(j).getpName()+" Cost per unit:"+bs.getParts().get(j).getUnitPrice());
+			boolean lb=false;
+			boolean war=false;
+			for (int j=0;j<bs.getInvoice().size();j++) {
+				Invoice inv=bs.getInvoice().get(j);
+				String warr="";
+				if (inv.isWarranty()) {
+					war=true;
+					warr=" Part is with the Warranty"; 		
+				}
+			System.out.println("		Part Name:"+inv.getPartName()+" Cost:"+inv.getCost()+warr);
+			
+
+			if (inv.isFirst()) {
+				lb=true;
 			}
 			
+			
+			}
+		
+			
+			if (lb==true) {
+				
+				System.out.println("		Service was first time provided so No labour charge"); 		
+			}
+			else {
+				if (!war) {
+					count+=1;
+					labourwages+=bs.getLabourCharge();
+					System.out.println("		Labour Charge per hour:"+bs.getLabourCharge()); 
+					System.out.println("		Labour hours:"+bs.getHour()); 
+				}
+			}
+			
+			
 		}
-		labourwages=service.getBaseServices().size()==0?0: labourwages/service.getBaseServices().size();
-		float hours=(float)((service.getEndTime().getTime()-service.getStartTime().getTime())/3600000);
+		labourwages=service.getBaseServices().size()==0?0: labourwages/count;
+		float hours=(float)(service.getEndTime().getTime()-service.getStartTime().getTime())/3600000;
 		System.out.println(" Total labour hours : "+hours );
 		System.out.println(" Labour Wages per hour : "+labourwages );
 		

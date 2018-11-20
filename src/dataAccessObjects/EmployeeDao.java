@@ -73,8 +73,8 @@ public class EmployeeDao {
 
 	public ArrayList<Employee> getFreeMechanic(int centerId, float hours,Date startDate) {
 		String qry = "    select sch.SDATE,serv.EID , nvl(SUM((sch.endtime+0)-(sch.starttime+0)),0) as inv ,emp.ENAME" + 
-				" FROM EMPLOYEE emp,EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on serv.EID = sch.MECHID where  serv.ROLE='Mechanic' and serv.SERVICECENTERID=?  and emp.EID=serv.EID and    " + 
-				"( (sch.SDATE is null  or sch.sdate>?   )  )  GROUP BY serv.EID,sch.SDATE,emp.ENAME   order by inv,SDATE ";
+				" FROM EMPLOYEE emp,EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on serv.EID = sch.MECHID and ( (sch.SDATE is null  or sch.sdate>?  )  ) where  emp.EID=serv.EID and  serv.ROLE='Mechanic'   " + 
+				" and serv.SERVICECENTERID=? GROUP BY serv.EID,sch.SDATE,emp.ENAME   order by inv,SDATE  ";
 		PreparedStatement statement = null;
 		String qry2 = " select ENDTIME from SCHEDULE where MECHID=? and SDATE=? order by ENDTIME Desc ";
 		ArrayList<Employee> employees=new ArrayList<>();
@@ -88,8 +88,8 @@ public class EmployeeDao {
 			Connection conn=db.establishConnection();
 		
 			statement = conn.prepareStatement(qry);
-			statement.setInt(1,centerId);
-			statement.setDate(2,new java.sql.Date(startDate.getTime()));
+			statement.setInt(2,centerId);
+			statement.setDate(1,new java.sql.Date(startDate.getTime()));
 			ResultSet rs = statement.executeQuery();
 			
 			Date dt=dateFormat.parse(date);
@@ -172,8 +172,8 @@ public class EmployeeDao {
 	public ArrayList<Date> getStartDate(int mechanicId,float hours,Date startDate) {
 		
 		String qry = "    select sch.SDATE,serv.EID , nvl(SUM((sch.endtime+0)-(sch.starttime+0)),0) as inv" + 
-				" FROM EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on serv.EID = sch.MECHID where  serv.ROLE='Mechanic' and serv.EID=?    and    " + 
-				"( (sch.SDATE is null  or sch.sdate>?   )  )  GROUP BY serv.EID,sch.SDATE  order by inv,SDATE ";
+				" FROM EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on serv.EID = sch.MECHID and ( (sch.SDATE is null  or sch.sdate>?   )  ) where  serv.ROLE='Mechanic' and serv.EID=?        " + 
+				"  GROUP BY serv.EID,sch.SDATE  order by inv,SDATE ";
 		
 		PreparedStatement statement = null;
 		String qry2 = " select ENDTIME from SCHEDULE where MECHID=? and SDATE=? order by ENDTIME Desc ";
@@ -188,8 +188,8 @@ public class EmployeeDao {
 			Connection conn=db.establishConnection();
 		
 			statement = conn.prepareStatement(qry);
-			statement.setInt(1,mechanicId);
-			statement.setDate(2,new java.sql.Date(startDate.getTime()));
+			statement.setDate(1,new java.sql.Date(startDate.getTime()));
+			statement.setInt(2,mechanicId);
 			
 			ResultSet rs = statement.executeQuery();
 			
