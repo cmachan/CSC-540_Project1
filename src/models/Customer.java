@@ -11,6 +11,7 @@ public class Customer {
 	String password;
 	int centerId;
 	Repair service;
+	
 	public Repair getService() {
 		return service;
 	}

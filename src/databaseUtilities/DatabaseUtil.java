@@ -12,13 +12,14 @@ import constants.CONSTANTS;
 
 public class DatabaseUtil {
 	
-	Connection conn = null;
+	static Connection conn = null;
 	
 	public Connection establishConnection() {
 	   try{
-	      Class.forName(CONSTANTS.JDBC_DRIVER);
-	      conn = DriverManager.getConnection(CONSTANTS.dbUrl,CONSTANTS.dbUserName,CONSTANTS.dbPassword);
-	      
+		   if (conn==null){
+		   Class.forName(CONSTANTS.JDBC_DRIVER);
+		    conn = DriverManager.getConnection(CONSTANTS.dbUrl,CONSTANTS.dbUserName,CONSTANTS.dbPassword);
+		   }  
 	   }catch(SQLException se){
 	      se.printStackTrace();
 	   }catch(Exception e){
@@ -29,8 +30,19 @@ public class DatabaseUtil {
 	
 	public void closeConnection() {
 		try {
+			
 			conn.commit();
+			//conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public  void closeConnection2() {
+		try {
+			if (conn!=null)
+			{conn.commit();
 			conn.close();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

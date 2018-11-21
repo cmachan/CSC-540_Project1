@@ -25,12 +25,19 @@ import models.Invoice;
 import models.Part;
 import models.Repair;
 import views.CustomerView;
+import views.LoginView;
 
 
 public class CustomerController  {
 	private CustomerView view;
 	private static Customer customer;
 	
+	public static Customer getCustomer() {
+		return customer;
+	}
+	public static void setCustomer(Customer customer) {
+		CustomerController.customer = customer;
+	}
 	public CustomerController(CustomerView view){
 		this.view=view;
 	}
@@ -39,11 +46,11 @@ public class CustomerController  {
 		
 	}
 	
-	public Customer getCustomerProfile(String email ) {
+	public static Customer getCustomerProfile(String email ) {
 		 CustomerDao cusDao=new CustomerDao();
-		 Customer customer=cusDao.getCustomerProfile(email);
-		 this.customer=customer;
-		 return customer;
+		 Customer cuser=cusDao.getCustomerProfile(email);
+		 customer=cuser;
+		 return cuser;
 		 
 	}
 	private  void updateCustomerProfile() {
@@ -52,9 +59,9 @@ public class CustomerController  {
 		 
 		 
 	}
-	public  void registerCar(Car car) {
+	public  boolean registerCar(Car car) {
 		 CarDao carDao=new CarDao();
-		 carDao.registerCar(car,customer);
+		 return carDao.registerCar(car,customer);
 		 
 		 
 	}
@@ -104,7 +111,7 @@ public class CustomerController  {
 			
 		case CONSTANTS.CUSTOMER_SERVICE_SCHEDULE:
 			
-			choice=view.viewServiceSchedule(customer);
+			choice=view.viewServiceSchedule(customer,customer.getCenterId());
 			break;	
 			
 		case CONSTANTS.CUSTOMER_SERVICE_RESCHEDULE:
@@ -113,14 +120,18 @@ public class CustomerController  {
 					choice=view.viewServiceReSchedule(upcomingServices,customer);
 					break;
 		case CONSTANTS.CUSTOMER_SERVICE_INVOICE:
-			 	HashMap<String, Repair> completedservices=getCompletedServices();
+			 	HashMap<String, Repair> completedservices=getCompletedServices(customer.getcId());
 			
 				choice=view.viewServiceInvoice(completedservices,customer);
 				break;
 		case CONSTANTS.CUSTOMER_SERVICE_SCHEDULE2:
 		 	choice=view.viewSchedule(customer);
 			break;	
-					
+		case CONSTANTS.LOGOUT:
+			customer=null;
+		 	choice=LoginView.displayMainMenu();
+			break;	
+							
 		default:
 			return;
 		}
@@ -128,9 +139,9 @@ public class CustomerController  {
 		controlFlow(choice);
 		
 	}
-	private  HashMap<String, Repair> getCompletedServices() {
+	public  HashMap<String, Repair> getCompletedServices(int id) {
 		 RepairDao repair=new RepairDao();
-		 return repair.getCompletedServices(customer.getcId());
+		 return repair.getCompletedServices(id);
 		
 	}
 	public boolean validateCar(Repair service) {

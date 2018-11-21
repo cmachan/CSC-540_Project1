@@ -114,7 +114,7 @@ public class RepairDao {
 	
 
 	public void placeOrder(ArrayList<Part> parts) {
-		String qry = "Insert into CAR_ORDER(ODATE,QTY,CENTERID,DISTRIBUTORID,STATUS,REQCENTERID,PARTID,EXPECTDELDATE) values(CURRENT_DATE,?,?,?,?,?,?,?)";
+		String qry = "Insert into CAR_ORDER(ODATE,QTY,CENTERID,DISTRIBUTORID,STATUS,REQCENTERID,PARTID,EXPECTDELDATE,REQTYPE) values(CURRENT_DATE,?,?,?,?,?,?,?,?)";
 		PreparedStatement statement = null;
 		Connection conn=null;
 		DatabaseUtil db = new DatabaseUtil();
@@ -132,9 +132,11 @@ public class RepairDao {
 				statement.setDate(7,new Date(EmployeeDao.addDays(new java.util.Date(),part.getDeliveryTime()).getTime()));
 			if (part.getAltcenter()!=-1) {
 				statement.setString(3, null);
+				statement.setString(8, "S");
 				statement.setInt(5, part.getAltcenter());
 			}else {
 				statement.setString(5, null);
+				statement.setString(8, "D");
 				statement.setString(3, part.getDistributorId());
 			}
 			
@@ -427,7 +429,7 @@ public class RepairDao {
 
 			PreparedStatement statement = null;
 			Connection conn=null;
-			String qry = "UPDATE  SCHEDULE set STARTTIME=?,ENDTIME=?,SDATE=? WHERE RID = ? ";
+			String qry = "UPDATE  SCHEDULE set STARTTIME=?,ENDTIME=?,SDATE=?,MECHID=? WHERE RID = ? ";
 			DatabaseUtil db = new DatabaseUtil();
 			try {
 				conn=db.establishConnection();
@@ -436,7 +438,8 @@ public class RepairDao {
 				statement.setTimestamp(1, new java.sql.Timestamp(service.getStartTime().getTime()));
 				statement.setTimestamp(2,  new java.sql.Timestamp(service.getEndTime().getTime()));
 				statement.setDate(3, new java.sql.Date(service.getStartTime().getTime()));
-				statement.setInt(4, service.getrId());
+				statement.setInt(4, service.getCenterId());
+				statement.setInt(5, service.getrId());
 				
 				statement.executeUpdate();
 				
@@ -467,7 +470,7 @@ public class RepairDao {
 				conn=db.establishConnection();
 				
 				statement = conn.prepareStatement(qry);
-				statement.setFloat(1, selectedRepair.getMechanicId());
+				statement.setInt(1, selectedRepair.getMechanicId());
 			
 				
 				statement.setString(2, dateFormat2.format(selectedRepair.getStartTime())+"-"+dateFormat2.format(selectedRepair.getEndTime()));

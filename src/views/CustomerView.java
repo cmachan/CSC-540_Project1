@@ -68,6 +68,9 @@ public class CustomerView {
 			}
 	            
 	        }
+		if (choice==5) {
+			return CONSTANTS.LOGOUT;
+		}
 		
 	
 		return CONSTANTS.CUSTOMER_MAIN_MENU+choice;
@@ -131,8 +134,8 @@ public class CustomerView {
 		for (int i=0;i<customer.getCarsOwned().size();i++) {
 			Car car=customer.getCarsOwned().get(i);
 			
-			System.out.println("Car: "+car.getLicensePlate()+" Make: "+car.getMake()+" Model: "+car.getModel()+" Year: "+car.getMakeYear()+" Date of last Service: "+car.getDateOfService()+" Last Service Type: "+car.getLastServiceType()+" Date of Purchase: "+car.getDateOfPurchase()+" Last recorded Mileage: "+car.getLastMileage());
-			
+			System.out.println("Car: "+car.getLicensePlate()+" ,Make: "+car.getMake()+",Model: "+car.getModel()+" ,Year: "+car.getMakeYear()+" ,Date of last Service: "+car.getDateOfService()+" ,Last Service Type: "+car.getLastServiceType()+" ,Date of Purchase: "+car.getDateOfPurchase()+" Last recorded Mileage: "+car.getLastMileage());
+
 		}
 		System.out.println("\n");
 		System.out.println("--------MENU-------");
@@ -229,7 +232,7 @@ public class CustomerView {
 							}
 						}
 						input=input.replaceAll("-", "");
-						customer.setPhone(Long.parseLong(input.replaceAll(".", "")));
+						customer.setPhone(Long.parseLong(input.replaceAll("\\.", "")));
 						break;	
 						
 					case 4: 
@@ -469,7 +472,7 @@ public class CustomerView {
 		input="";
 		boolean flag=false;
 		
-			System.out.println("G. Last Service Date ");
+			System.out.println("G. Last Service Date in MM/dd/yyyy format");
 			System.out.print(">");
 			do {
 			input=(console.nextLine()).trim();
@@ -535,8 +538,13 @@ public class CustomerView {
 		
 		
 		if (choice==1) {
-			controller.registerCar(car);
-			System.out.println("Car Registered");
+			if (controller.registerCar(car))
+				{
+				System.out.println("Car Registered");}
+				else {
+					System.out.println("Something Went wrong, try again ");
+					 return CONSTANTS.CUSTOMER_REGISTER_CAR;
+				}
 			
 		}else {
 			System.out.println("Registeration canceled");
@@ -631,11 +639,11 @@ public class CustomerView {
 		return CONSTANTS.CUSTOMER_SERVICE;
 	}
 
-	public String viewServiceSchedule(Customer customer) {
+	public String viewServiceSchedule(Customer customer, int centerID) {
 		int choice=0;
 		String input="";
 		Repair service=new Repair();
-		service.setCenterId(customer.getCenterId());
+		service.setCenterId(centerID);
 		Car car=new Car();
 		service.setcId(customer.getcId());
 		System.out.println("--------Schedule the service -------");
@@ -682,7 +690,7 @@ public class CustomerView {
 		service.setCar(car);
 		input="";
 		EmployeeDao empDao=new EmployeeDao();
-		ArrayList<Employee> mechanics=empDao.getAllMechanic(customer.getCenterId());
+		ArrayList<Employee> mechanics=empDao.getAllMechanic(service.getCenterId());
 		System.out.println("Enter Cancel to go back");
 		System.out.println("C. Select Mechanic (Enter 1-"+mechanics.size()+"): ");
 		for (int i =0;i<mechanics.size();i++) {
@@ -828,7 +836,7 @@ public class CustomerView {
 				viewScheduleRepair2(service,mechanics,customer,fault);
 			}else {
 				System.out.println("Car not valid Enter again");
-				viewServiceSchedule(customer) ;
+				viewServiceSchedule(customer,customer.getCenterId()) ;
 			}
 			
 			return CONSTANTS.CUSTOMER_SERVICE_SCHEDULE2;
@@ -963,12 +971,12 @@ public class CustomerView {
 			if (controller.validateCar(service)) {
 				ArrayList<Employee> mechanics=controller.findDates(service,new Date());
 				if (mechanics==null) {
-					viewServiceSchedule(customer);
+					viewServiceSchedule(customer,customer.getCenterId());
 				}
 				viewScheduleMaintenance2(service,mechanics,customer);
 			}else {
 				System.out.println("Car not valid Enter again");
-				viewServiceSchedule(customer) ;
+				viewServiceSchedule(customer,customer.getCenterId()) ;
 			}
 			
 			
@@ -1047,7 +1055,7 @@ public class CustomerView {
 			
 			controller.saveMaintenance(service,mechanics.get(dateSelected-1));
 			System.out.println("Service scheduled \n\n");
-			viewServiceSchedule(customer);
+			viewServiceSchedule(customer,customer.getCenterId());
 			
 		}
 		return viewScheduleMaintenance(service,customer);
@@ -1203,7 +1211,7 @@ public class CustomerView {
 			
 			controller.rescheduleService(selectedRepair,mechanics.get(dateSelected-1));
 			System.out.println("Service rescheduled \n\n");
-			viewServiceSchedule(customer);
+			viewServiceSchedule(customer,customer.getCenterId());
 			
 		}else if(choice==2) {
 			viewServiceReSchedule(services,customer);

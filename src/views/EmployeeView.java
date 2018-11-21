@@ -65,7 +65,7 @@ public class EmployeeView {
 			else {
 				
 				if(controller.getRole() == 1) {
-					//Call Manager Main Menu
+					controller.getManController().getView().displayManagerMainMenu();
 				}else if(controller.getRole() == 2) {
 					controller.getRecController().getView().displayReceptionistMainMenu();
 				}

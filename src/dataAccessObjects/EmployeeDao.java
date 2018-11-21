@@ -34,7 +34,7 @@ public class EmployeeDao {
 	        return cal.getTime();
 	    }
 	public ArrayList<Employee> getAllMechanic(int center) {
-		String qry = "select emp.ENAME,emp.EID,serv.SERVICECENTERID FROM EMPLOYEE emp,EMP_SERVICE serv WHERE emp.EID = serv.EID and serv.ROLE='Mechanic' and serv.SERVICECENTERID=?  ";
+		String qry = "select emp.ENAME,emp.EID,serv.SERVICECENTERID FROM EMPLOYEE emp,EMP_SERVICE serv WHERE emp.EID = serv.EID and serv.ROLE='MECHANIC' and serv.SERVICECENTERID=?  ";
 		PreparedStatement statement = null;
 		ArrayList<Employee> mechanics=new ArrayList<Employee>();
 		Employee  employee=null;
@@ -49,7 +49,7 @@ public class EmployeeDao {
 			
 			while (rs.next())
 				{
-				employee=new Employee();;
+				employee=new Employee();
 				
 				employee.seteId(rs.getInt("EID"));
 				employee.seteName(rs.getString("ENAME"));
@@ -73,7 +73,7 @@ public class EmployeeDao {
 
 	public ArrayList<Employee> getFreeMechanic(int centerId, float hours,Date startDate) {
 		String qry = "    select sch.SDATE,serv.EID , nvl(SUM((sch.endtime+0)-(sch.starttime+0)),0) as inv ,emp.ENAME" + 
-				" FROM EMPLOYEE emp,EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on serv.EID = sch.MECHID and ( (sch.SDATE is null  or sch.sdate>?  )  ) where  emp.EID=serv.EID and  serv.ROLE='Mechanic'   " + 
+				" FROM EMPLOYEE emp,EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on serv.EID = sch.MECHID and ( (sch.SDATE is null  or sch.sdate>?  )  ) where  emp.EID=serv.EID and  serv.ROLE='MECHANIC'   " + 
 				" and serv.SERVICECENTERID=? GROUP BY serv.EID,sch.SDATE,emp.ENAME   order by inv,SDATE  ";
 		PreparedStatement statement = null;
 		String qry2 = " select ENDTIME from SCHEDULE where MECHID=? and SDATE=? order by ENDTIME Desc ";
@@ -172,7 +172,7 @@ public class EmployeeDao {
 	public ArrayList<Date> getStartDate(int mechanicId,float hours,Date startDate) {
 		
 		String qry = "    select sch.SDATE,serv.EID , nvl(SUM((sch.endtime+0)-(sch.starttime+0)),0) as inv" + 
-				" FROM EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on serv.EID = sch.MECHID and ( (sch.SDATE is null  or sch.sdate>?   )  ) where  serv.ROLE='Mechanic' and serv.EID=?        " + 
+				" FROM EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on serv.EID = sch.MECHID and ( (sch.SDATE is null  or sch.sdate>?   )  ) where  serv.ROLE='MECHANIC' and serv.EID=?        " + 
 				"  GROUP BY serv.EID,sch.SDATE  order by inv,SDATE ";
 		
 		PreparedStatement statement = null;
@@ -333,6 +333,8 @@ public class EmployeeDao {
 		try {
 			st = conn.createStatement();
 			st.executeUpdate(qry);
+			LoginDao lg=new LoginDao();
+			lg.updatepassword(emp.geteId()+"",emp.getPass());
 			st.close();
 		}catch(SQLException e) {
 			e.printStackTrace();

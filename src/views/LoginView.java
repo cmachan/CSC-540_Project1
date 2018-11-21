@@ -16,6 +16,7 @@ import controllers.CustomerController;
 import controllers.LoginController;
 import dataAccessObjects.EmployeeDao;
 import dataAccessObjects.ServiceCenterDao;
+import databaseUtilities.DatabaseUtil;
 import models.BaseService;
 import models.Car;
 import models.Center;
@@ -39,8 +40,8 @@ public class LoginView {
 		LoginView.controller = controller;
 	}
 
-	public String displayMainMenu() {
-		
+	public static String displayMainMenu() {
+		new DatabaseUtil().closeConnection2();
 		int choice=0;
 		System.out.println("--------WELCOME-------");
 		System.out.println("1. Login");
@@ -273,52 +274,9 @@ public class LoginView {
 		}
 		
 		login.setCenterID(centers.get(Integer.parseInt(input)-1).getId());
-		input="";
-		 
-		System.out.println("G. Enter Role ");
-		System.out.println("1. MANAGER");
-		System.out.println("2. RECEPTIONIST");
-		System.out.println("3. CUSTOMER");
-		System.out.println("Enter 1,2 or 3");
-		int in=0;
-		while(input.equals("")) {
-			try {
-				
-				
-				System.out.print(">");
-				
-				input = console.nextLine();
-				
-				if (input.equalsIgnoreCase("cancel")) {
-					return CONSTANTS.LOGIN_MAIN_MENU;
-				}
-				 in=Integer.parseInt(input);
-				if( in >3 || in <1) {
-					
-					System.out.println("< Error: Choice not correct, Try again ");
-					input="";
-				}
-				else {
-					break;
-				}
-		     
-			}catch(Exception e) {
-				
-				 System.out.println("< Error: Choice not correct, Try again ");
-				 console.reset();
-				 input="";
-			}
-	            
-	        }
-		if (in==1) {
-			login.setRole("MANAGER");
-			
-		}else if(in==2) {
-			login.setRole("RECEPTIONIST");
-		}
-		else {
-			login.setRole("CUSTOMER");
-		}
+		
+		login.setRole("CUSTOMER");
+		
 		
 		System.out.println("\n");
 		System.out.println("1. Sign Up");
@@ -346,6 +304,7 @@ public class LoginView {
 	        }
 		if (choice==1) {
 			controller.signup(login);
+			System.out.println("Sign up successful , Please login ");
 			return CONSTANTS.LOGIN_PAGE;
 		}
 		

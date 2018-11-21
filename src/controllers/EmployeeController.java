@@ -16,7 +16,14 @@ public class EmployeeController {
 	private Employee emp;
 	Scanner scan = new Scanner(System.in);
 	ReceptionistController recController;
+	ManagerController manController;
 		
+	public ManagerController getManController() {
+		return manController;
+	}
+	public void setManController(ManagerController manController) {
+		this.manController = manController;
+	}
 	int role; //1 for manager 2 for receptionist
 	
 	public EmployeeController(EmployeeView view) {

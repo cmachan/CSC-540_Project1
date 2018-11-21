@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -57,7 +58,7 @@ public class CarDao {
 		return carsowned;
 	}
 
-	public void registerCar(Car car, Customer customer) {
+	public boolean registerCar(Car car, Customer customer) {
 		
 		PreparedStatement statement = null;
 		Connection conn=null;
@@ -84,15 +85,27 @@ public class CarDao {
 			if (statement != null) {
 				statement.close();
 			}
+			return true;
 
-		} catch (SQLException e) {
+		} catch (SQLIntegrityConstraintViolationException e) {
+			
+			// TODO Auto-generated catch block
+			System.out.println("Car with same license already present");
+			
+		}catch (SQLException e) {
+			if (e.getSQLState().equals("23000")) {
+				System.out.println("Car with same license already present");
+			}
+			else {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}finally {
-			db.closeConnection();
+			}
 			
-
 		}
+		finally {
+			db.closeConnection();
+		}
+		return false;
 	}
 
 	public Car getCar(String licensePlate, int consumerId) {

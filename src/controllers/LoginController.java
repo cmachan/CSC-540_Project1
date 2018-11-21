@@ -12,6 +12,8 @@ import models.Repair;
 import views.CustomerView;
 import views.EmployeeView;
 import views.LoginView;
+import views.ManagerView;
+import views.ReceptionistView;
 
 public class LoginController {
 
@@ -56,8 +58,25 @@ public class LoginController {
 		if (lDao.getUserProfile(login)) {
 			if (login.getRole().equals("MANAGER")) {
 				
-			}else if (login.getRole().equals("RECEPTIONIST")){
+				ManagerView manView = new ManagerView();
+				ManagerController manController = new ManagerController(manView);
+				manView.setController(manController);
+				EmployeeView empView = new EmployeeView();
+				EmployeeController empController = new EmployeeController(empView);
+				empView.setController(empController);
 				
+				
+				ManagerController.setManager(empController.getEmployeeProfile(Integer.parseInt(login.getuId())));
+				manView.displayManagerMainMenu();
+				
+				
+				
+			}else if (login.getRole().equals("RECEPTIONIST")){
+				ReceptionistView recView = new ReceptionistView();
+				ReceptionistController recController = new ReceptionistController(recView);
+				recView.setController(recController);
+				recController.setReceptionist(login);
+				recView.displayReceptionistMainMenu();
 			}else {
 				CustomerView customerView=new CustomerView();
 				CustomerController customerController=new CustomerController(customerView);
@@ -79,12 +98,11 @@ public class LoginController {
 
 	public void signup(Login login) {
 		LoginDao lDao=new LoginDao();
-		if (login.getRole().equalsIgnoreCase("Manager") || login.getRole().equalsIgnoreCase("Receptionist")) {
-			lDao.insertEmployee(login);
-		}else {
-			lDao.insertCustomer(login);
-		}
-		if (login.getuId()!=(null) && !login.getuId().equals("")) {
+		boolean flag=false;
+		
+		flag=lDao.insertCustomer(login);
+		
+		if (flag==true && login.getuId()!=(null) && !login.getuId().equals("")) {
 			lDao.insertLogin(login);
 			
 		}

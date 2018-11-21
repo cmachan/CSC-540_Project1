@@ -31,6 +31,7 @@ public class CustomerDao {
 				{
 				customer=new Customer(rs.getInt("CID"));
 				customer.setAddress(rs.getString("ADDRESS"));
+				customer.setCenterId(rs.getInt("CENTERID"));
 				customer.setcName(rs.getString("CNAME"));
 				customer.setEmail(rs.getString("EMAIL"));
 				customer.setPhone(rs.getLong("PHONE"));
@@ -71,6 +72,7 @@ public class CustomerDao {
 			{
 				customer=new Customer(rs.getInt("CID"));
 				customer.setAddress(rs.getString("ADDRESS"));
+				customer.setCenterId(rs.getInt("CENTERID"));
 				customer.setcName(rs.getString("CNAME"));
 				customer.setEmail(rs.getString("EMAIL"));
 				customer.setPhone(rs.getLong("PHONE"));
@@ -89,6 +91,7 @@ public class CustomerDao {
 		Connection conn=null;
 		String qry = "UPDATE CUSTOMER set CNAME = ? , EMAIL = ? , PHONE = ? , ADDRESS = ? WHERE CID = ?";
 		
+		
 		DatabaseUtil db = new DatabaseUtil();
 		try {
 			conn=db.establishConnection();
@@ -104,6 +107,8 @@ public class CustomerDao {
 			if (statement != null) {
 				statement.close();
 			}
+			LoginDao ld=new LoginDao();
+			ld.updatepassword(customer.getEmail(),customer.getPassword());
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -114,6 +119,10 @@ public class CustomerDao {
 			
 
 		}
+		
+		
+		
+		
 		
 	}
 

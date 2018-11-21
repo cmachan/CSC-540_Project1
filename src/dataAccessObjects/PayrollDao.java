@@ -80,7 +80,7 @@ public class PayrollDao {
 	
 	public void insert() {
 		String qry = "INSERT INTO PAYROLL VALUES(" + eId + ", TO_DATE ('" + startDate + "','YYYY-MM-DD')" + "," + wages + "," + frequency + ")";
-		System.out.println(qry);
+//		System.out.println(qry);
 		DatabaseUtil db = new DatabaseUtil();
 		db.establishConnection();
 		db.runQuery(qry);

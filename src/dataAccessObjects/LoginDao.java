@@ -61,7 +61,7 @@ public class LoginDao {
 	
 	
 
-	public void insertCustomer(Login login) {
+	public boolean insertCustomer(Login login) {
 		
 		PreparedStatement statement = null;
 		Connection conn=null;
@@ -94,21 +94,26 @@ public class LoginDao {
 				if (statement != null) {
 					statement.close();
 				}
-
+				return true;
 			
 		
 		} catch (SQLException e) {
+			if (e.getSQLState().equals("23000")) {
+				System.out.println("Customer with same email present");
+			}
+			else {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			}
 		}finally {
 			db.closeConnection();
 			
 
 		}
-		
+		return false;
 	}
 
-	public void insertEmployee(Login login) {
+	public boolean insertEmployee(Login login) {
 		PreparedStatement statement = null;
 		Connection conn=null;
 		DatabaseUtil db = new DatabaseUtil();
@@ -147,16 +152,22 @@ public class LoginDao {
 					statement.close();
 				}
 
-			
+			return true;
 		
 		} catch (SQLException e) {
+			if (e.getSQLState()!=null && e.getSQLState().equals("23000")) {
+				System.out.println("Employee with same id present");
+			}
+			else {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			}
 		}finally {
 			db.closeConnection();
 			
 
 		}
+		return false;
 	}
 		
 	
@@ -175,6 +186,40 @@ public class LoginDao {
 						
 					statement.setString(1, login.getuId());
 					statement.setString(2, login.getPass());
+					statement.executeUpdate();
+			
+				if (statement != null) {
+					statement.close();
+				}
+
+			
+		
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			db.closeConnection();
+			
+
+		}
+	}
+
+
+
+	public void updatepassword(String id, String password) {
+		PreparedStatement statement = null;
+		Connection conn=null;
+		DatabaseUtil db = new DatabaseUtil();
+		
+		try {
+			conn=db.establishConnection();
+			
+					String qry2 = "UPDATE  login set password=? where id=?  ";
+				
+						statement = conn.prepareStatement(qry2);
+						
+					statement.setString(2, id);
+					statement.setString(1, password);
 					statement.executeUpdate();
 			
 				if (statement != null) {
