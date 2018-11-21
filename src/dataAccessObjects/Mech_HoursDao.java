@@ -6,7 +6,7 @@ import databaseUtilities.DatabaseUtil;
 
 public class Mech_HoursDao {
 	int eId;
-	int hours;
+	double hours;
 	
 	public int geteId() {
 		return eId;
@@ -16,11 +16,11 @@ public class Mech_HoursDao {
 		this.eId = eId;
 	}
 	
-	public int getHours() {
+	public double getHours() {
 		return hours;
 	}
 	
-	public void setHours(int hours) {
+	public void setHours(double hours) {
 		this.hours = hours;
 	}
 	
@@ -37,7 +37,7 @@ public class Mech_HoursDao {
 			if(idx == 0)
 				eId = Integer.parseInt(s);
 			else
-				hours = Integer.parseInt(s);
+				hours = Double.parseDouble(s);
 			
 			idx++;
 		}

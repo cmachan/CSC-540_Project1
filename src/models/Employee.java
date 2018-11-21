@@ -11,6 +11,41 @@ public class Employee {
 	Date sDate;
 	Date startTime;
 	Date endTime;
+	String address;
+	double wage;
+	String role;
+	String pass;
+		public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	public double getWage() {
+		return wage;
+	}
+
+	public void setWage(double wage) {
+		this.wage = wage;
+	}
+
+	public String getPass() {
+		return pass;
+	}
+
+	public void setPass(String pass) {
+		this.pass = pass;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+	
+	public void setAddress(String address) {
+		this.address = address;
+	}
 	
 	public Date getStartTime() {
 		return startTime;

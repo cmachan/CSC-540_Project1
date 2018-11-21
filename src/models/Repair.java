@@ -9,7 +9,14 @@ public class Repair {
 	int cId;
 	float fees;
 	Fault fault;
+	String cname;
 	
+	public String getCname() {
+		return cname;
+	}
+	public void setCname(String cname) {
+		this.cname = cname;
+	}
 	ArrayList<BaseService>baseServices;
 	public Fault getFault() {
 		return fault;

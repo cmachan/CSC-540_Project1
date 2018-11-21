@@ -10,7 +10,14 @@ public class BaseService {
 	float hour;
 	String name;
 	Date lastService;
-
+	ArrayList<Invoice> invoice;
+	
+	public ArrayList<Invoice> getInvoice() {
+		return invoice;
+	}
+	public void setInvoice(ArrayList<Invoice> invoice) {
+		this.invoice = invoice;
+	}
 	public Date getLastService() {
 		return lastService;
 	}

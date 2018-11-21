@@ -10,13 +10,20 @@ public class Customer {
 	String address;
 	String password;
 	int centerId;
+	Repair service;
+	
+	public Repair getService() {
+		return service;
+	}
+	public void setService(Repair service) {
+		this.service = service;
+	}
 	public int getCenterId() {
 		return centerId;
 	}
 	public void setCenterId(int centerId) {
 		this.centerId = centerId;
 	}
-
 	ArrayList<Car> carsOwned;
 	public int getcId() {
 		return cId;

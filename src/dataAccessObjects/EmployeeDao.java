@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,7 +34,7 @@ public class EmployeeDao {
 	        return cal.getTime();
 	    }
 	public ArrayList<Employee> getAllMechanic(int center) {
-		String qry = "select emp.ENAME,emp.EID,serv.SERVICECENTERID FROM EMPLOYEE emp,EMP_SERVICE serv WHERE emp.EID = serv.EID and serv.ROLE='Mechanic' and serv.SERVICECENTERID=?  ";
+		String qry = "select emp.ENAME,emp.EID,serv.SERVICECENTERID FROM EMPLOYEE emp,EMP_SERVICE serv WHERE emp.EID = serv.EID and serv.ROLE='MECHANIC' and serv.SERVICECENTERID=?  ";
 		PreparedStatement statement = null;
 		ArrayList<Employee> mechanics=new ArrayList<Employee>();
 		Employee  employee=null;
@@ -48,7 +49,7 @@ public class EmployeeDao {
 			
 			while (rs.next())
 				{
-				employee=new Employee();;
+				employee=new Employee();
 				
 				employee.seteId(rs.getInt("EID"));
 				employee.seteName(rs.getString("ENAME"));
@@ -72,8 +73,8 @@ public class EmployeeDao {
 
 	public ArrayList<Employee> getFreeMechanic(int centerId, float hours,Date startDate) {
 		String qry = "    select sch.SDATE,serv.EID , nvl(SUM((sch.endtime+0)-(sch.starttime+0)),0) as inv ,emp.ENAME" + 
-				" FROM EMPLOYEE emp,EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on serv.EID = sch.MECHID where  serv.ROLE='Mechanic' and serv.SERVICECENTERID=?  and emp.EID=serv.EID and    " + 
-				"( (sch.SDATE is null  or sch.sdate>?   )  )  GROUP BY serv.EID,sch.SDATE,emp.ENAME   order by inv,SDATE ";
+				" FROM EMPLOYEE emp,EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on serv.EID = sch.MECHID and ( (sch.SDATE is null  or sch.sdate>?  )  ) where  emp.EID=serv.EID and  serv.ROLE='MECHANIC'   " + 
+				" and serv.SERVICECENTERID=? GROUP BY serv.EID,sch.SDATE,emp.ENAME   order by inv,SDATE  ";
 		PreparedStatement statement = null;
 		String qry2 = " select ENDTIME from SCHEDULE where MECHID=? and SDATE=? order by ENDTIME Desc ";
 		ArrayList<Employee> employees=new ArrayList<>();
@@ -87,8 +88,8 @@ public class EmployeeDao {
 			Connection conn=db.establishConnection();
 		
 			statement = conn.prepareStatement(qry);
-			statement.setInt(1,centerId);
-			statement.setDate(2,new java.sql.Date(startDate.getTime()));
+			statement.setInt(2,centerId);
+			statement.setDate(1,new java.sql.Date(startDate.getTime()));
 			ResultSet rs = statement.executeQuery();
 			
 			Date dt=dateFormat.parse(date);
@@ -154,7 +155,7 @@ public class EmployeeDao {
 			
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+//				e.printStackTrace();
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -171,8 +172,8 @@ public class EmployeeDao {
 	public ArrayList<Date> getStartDate(int mechanicId,float hours,Date startDate) {
 		
 		String qry = "    select sch.SDATE,serv.EID , nvl(SUM((sch.endtime+0)-(sch.starttime+0)),0) as inv" + 
-				" FROM EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on serv.EID = sch.MECHID where  serv.ROLE='Mechanic' and serv.EID=?    and    " + 
-				"( (sch.SDATE is null  or sch.sdate>?   )  )  GROUP BY serv.EID,sch.SDATE  order by inv,SDATE ";
+				" FROM EMP_SERVICE serv LEFT JOIN SCHEDULE sch  on serv.EID = sch.MECHID and ( (sch.SDATE is null  or sch.sdate>?   )  ) where  serv.ROLE='MECHANIC' and serv.EID=?        " + 
+				"  GROUP BY serv.EID,sch.SDATE  order by inv,SDATE ";
 		
 		PreparedStatement statement = null;
 		String qry2 = " select ENDTIME from SCHEDULE where MECHID=? and SDATE=? order by ENDTIME Desc ";
@@ -187,8 +188,8 @@ public class EmployeeDao {
 			Connection conn=db.establishConnection();
 		
 			statement = conn.prepareStatement(qry);
-			statement.setInt(1,mechanicId);
-			statement.setDate(2,new java.sql.Date(startDate.getTime()));
+			statement.setDate(1,new java.sql.Date(startDate.getTime()));
+			statement.setInt(2,mechanicId);
 			
 			ResultSet rs = statement.executeQuery();
 			
@@ -247,7 +248,7 @@ public class EmployeeDao {
 			
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+//				e.printStackTrace();
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -278,7 +279,7 @@ public class EmployeeDao {
 				statement = conn.prepareStatement(qry2);
 				statement.setInt(1, employee);
 				statement.setFloat(2, hour);
-				statement.executeUpdate();
+			statement.executeUpdate();
 			}
 			if (statement != null) {
 				statement.close();
@@ -286,7 +287,7 @@ public class EmployeeDao {
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
 		}finally {
 			db.closeConnection();
 			
@@ -294,7 +295,7 @@ public class EmployeeDao {
 		}
 		
 	}
-	public void deleteMechHours(int employee, float hour) {
+		public void deleteMechHours(int employee, float hour) {
 		// TODO Auto-generated method stub
 		PreparedStatement statement = null;
 		Connection conn=null;
@@ -314,11 +315,81 @@ public class EmployeeDao {
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
 		}finally {
 			db.closeConnection();
 			
 
 		}
+	}
+
+
+	public void updateEmployee(Employee emp) {
+		DatabaseUtil db = new DatabaseUtil();
+		Connection conn;
+		conn = db.establishConnection();
+		Statement st = null;
+		String qry = "UPDATE EMPLOYEE set ADDRESS = '" + emp.getAddress() + "' , ENAME = '" + emp.geteName() + "' , EMAIL = '" + emp.getEmail() + "' , PHONE = " + emp.getPhone() + " WHERE EID = " + emp.geteId();
+		try {
+			st = conn.createStatement();
+			st.executeUpdate(qry);
+			LoginDao lg=new LoginDao();
+			if (emp.getPass()!=null && !emp.getPass().equals("")) {
+				lg.updatepassword(emp.geteId()+"",emp.getPass());
+			}
+			
+			st.close();
+		}catch(SQLException e) {
+//			e.printStackTrace();
+		}finally {
+				try {
+					db.closeConnection();
+					if(st != null)
+						st.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				
+				}
+		}
+	}
+	
+	public Employee getEmployeeProfile(int id) {
+		Employee emp = new Employee();
+		DatabaseUtil db = new DatabaseUtil();
+		Connection conn;
+		conn = db.establishConnection();
+		ResultSet rs = null;
+		Statement st = null;
+		String query = "select E.eid , E.ename , E.address ,  E.email , E.phone , ES.servicecenterid , P.startdate from EMPLOYEE E , EMP_SERVICE ES , PAYROLL P where E.eid = ES.eid and ES.eid = P.eid and E.eid = " + id;
+		try {
+			st = conn.createStatement();
+			rs = st.executeQuery(query);
+			if(rs.next()) {
+				emp.seteId(rs.getInt(1));
+				emp.seteName(rs.getString(2));
+				emp.setAddress(rs.getString(3));
+				emp.setEmail(rs.getString(4));
+				emp.setPhone(rs.getLong(5));
+				emp.setServiceCenter(rs.getInt(6));
+				emp.setsDate(rs.getDate(7));
+			}
+			rs.close();
+			st.close();
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+				db.closeConnection();
+				try {
+					if(rs != null)
+						rs.close();
+					
+					if(st != null)
+						st.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+		}
+		
+		return emp;
 	}
 }

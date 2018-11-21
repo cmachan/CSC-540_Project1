@@ -14,50 +14,83 @@ import models.Customer;
 public class CustomerDao {
 	
 	
-	public Customer getCustomerProfile(int id) {
+	public Customer getCustomerProfile(String email) {
 		PreparedStatement statement = null;
 		Customer  customer=null;
-		String qry = "SELECT * FROM CUSTOMER  WHERE CID = ?" ;
+		String qry = "SELECT * FROM CUSTOMER  WHERE email = ?" ;
 		DatabaseUtil db = new DatabaseUtil();
 		try {
 			Connection conn=db.establishConnection();
 		
 			statement = conn.prepareStatement(qry);
-			statement.setInt(1, id);
+			statement.setString(1, email);
 			ResultSet rs = statement.executeQuery();
 			
 			
 			if (rs.next())
 				{
-				customer=new Customer(id);
+				customer=new Customer(rs.getInt("CID"));
 				customer.setAddress(rs.getString("ADDRESS"));
+				customer.setCenterId(rs.getInt("CENTERID"));
 				customer.setcName(rs.getString("CNAME"));
 				customer.setEmail(rs.getString("EMAIL"));
 				customer.setPhone(rs.getLong("PHONE"));
 				CarDao carDao=new CarDao();
-				customer.setCarsOwned(carDao.getCarsOwnedByCustomer(id));
+				customer.setCarsOwned(carDao.getCarsOwnedByCustomer(customer.getcId()));
 		
 				}
 			
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		finally {
+//			e.printStackTrace();
+		}finally {
 			db.closeConnection();
 			
 
 		}
-		
 		return customer;
 		
+	}
+	
+	/*
+	 * Added by Rahul for Employee Module
+	 */
+	public Customer getCustomerProfileByEmail(String email) {
+		PreparedStatement statement = null;
+		Customer  customer=null;
+		String qry = "SELECT * FROM CUSTOMER  WHERE email = '" + email +"'";
+		DatabaseUtil db = new DatabaseUtil();
+		try {
+			Connection conn=db.establishConnection();
+		
+			statement = conn.prepareStatement(qry);
+			ResultSet rs = statement.executeQuery();
+			
+			
+			if (rs.next())
+			{
+				customer=new Customer(rs.getInt("CID"));
+				customer.setAddress(rs.getString("ADDRESS"));
+				customer.setCenterId(rs.getInt("CENTERID"));
+				customer.setcName(rs.getString("CNAME"));
+				customer.setEmail(rs.getString("EMAIL"));
+				customer.setPhone(rs.getLong("PHONE"));
+			}
+		} catch (SQLException e) {
+//			e.printStackTrace();
+			return null;
+		} finally {
+			db.closeConnection();
+		}
+		return customer;
 	}
 
 	public void updateCustomerProfile(Customer customer) {
 		PreparedStatement statement = null;
 		Connection conn=null;
 		String qry = "UPDATE CUSTOMER set CNAME = ? , EMAIL = ? , PHONE = ? , ADDRESS = ? WHERE CID = ?";
+		
 		
 		DatabaseUtil db = new DatabaseUtil();
 		try {
@@ -74,16 +107,26 @@ public class CustomerDao {
 			if (statement != null) {
 				statement.close();
 			}
+			LoginDao ld=new LoginDao();
+			if (customer.getPassword()!=null && !customer.getPassword().equals("")) 
+				{
+			ld.updatepassword(customer.getEmail(),customer.getPassword());
+				}
+				
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 		finally {
 			db.closeConnection();
 			
 
 		}
+		
+		
+		
+		
 		
 	}
 

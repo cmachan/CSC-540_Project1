@@ -12,13 +12,14 @@ import constants.CONSTANTS;
 
 public class DatabaseUtil {
 	
-	Connection conn = null;
+	static Connection conn = null;
 	
 	public Connection establishConnection() {
 	   try{
-	      Class.forName(CONSTANTS.JDBC_DRIVER);
-	      conn = DriverManager.getConnection(CONSTANTS.dbUrl,CONSTANTS.dbUserName,CONSTANTS.dbPassword);
-	      
+		   if (conn==null){
+		   Class.forName(CONSTANTS.JDBC_DRIVER);
+		    conn = DriverManager.getConnection(CONSTANTS.dbUrl,CONSTANTS.dbUserName,CONSTANTS.dbPassword);
+		   }  
 	   }catch(SQLException se){
 	      se.printStackTrace();
 	   }catch(Exception e){
@@ -29,8 +30,19 @@ public class DatabaseUtil {
 	
 	public void closeConnection() {
 		try {
+			
 			conn.commit();
+			//conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public  void closeConnection2() {
+		try {
+			if (conn!=null)
+			{conn.commit();
 			conn.close();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -50,7 +62,7 @@ public class DatabaseUtil {
 				query = "SELECT * FROM " + tableName + " WHERE " + colName + " = '" + val + "'";
 			
 			rs = st.executeQuery(query);
-			System.out.println("Query Executed: " + query);
+//			System.out.println("Query Executed: " + query);
 			metaData = rs.getMetaData(); 
 			int colCount = metaData.getColumnCount();
 			while (rs.next()) {
@@ -82,7 +94,7 @@ public class DatabaseUtil {
 		try {
 			st = conn.createStatement();
 			st.executeUpdate(query);
-			System.out.println("Query Executed: " + query);
+//			System.out.println("Query Executed: " + query);
 			st.close();
 		}catch(SQLException e) {
 			e.printStackTrace();

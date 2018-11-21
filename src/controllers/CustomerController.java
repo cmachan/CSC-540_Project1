@@ -21,15 +21,23 @@ import models.Car;
 import models.Customer;
 import models.Employee;
 import models.Fault;
+import models.Invoice;
 import models.Part;
 import models.Repair;
 import views.CustomerView;
+import views.LoginView;
 
 
 public class CustomerController  {
 	private CustomerView view;
 	private static Customer customer;
 	
+	public static Customer getCustomer() {
+		return customer;
+	}
+	public static void setCustomer(Customer customer) {
+		CustomerController.customer = customer;
+	}
 	public CustomerController(CustomerView view){
 		this.view=view;
 	}
@@ -38,11 +46,11 @@ public class CustomerController  {
 		
 	}
 	
-	public Customer getCustomerProfile(int id) {
+	public static Customer getCustomerProfile(String email ) {
 		 CustomerDao cusDao=new CustomerDao();
-		 Customer customer=cusDao.getCustomerProfile(id);
-		 this.customer=customer;
-		 return customer;
+		 Customer cuser=cusDao.getCustomerProfile(email);
+		 customer=cuser;
+		 return cuser;
 		 
 	}
 	private  void updateCustomerProfile() {
@@ -51,9 +59,9 @@ public class CustomerController  {
 		 
 		 
 	}
-	public  void registerCar(Car car) {
+	public  boolean registerCar(Car car) {
 		 CarDao carDao=new CarDao();
-		 carDao.registerCar(car,customer);
+		 return carDao.registerCar(car,customer);
 		 
 		 
 	}
@@ -80,7 +88,7 @@ public class CustomerController  {
 			choice=view.displayProfileMenu();
 			break;
 		case CONSTANTS.CUSTOMER_VIEW_PROFILE:
-			getCustomerProfile(customer.getcId());
+			getCustomerProfile(customer.getEmail());
 			choice=view.viewProfile(customer);
 			break;
 		case CONSTANTS.CUSTOMER_UPDATE_PROFILE:
@@ -103,7 +111,7 @@ public class CustomerController  {
 			
 		case CONSTANTS.CUSTOMER_SERVICE_SCHEDULE:
 			
-			choice=view.viewServiceSchedule(customer);
+			choice=view.viewServiceSchedule(customer,customer.getCenterId());
 			break;	
 			
 		case CONSTANTS.CUSTOMER_SERVICE_RESCHEDULE:
@@ -112,12 +120,18 @@ public class CustomerController  {
 					choice=view.viewServiceReSchedule(upcomingServices,customer);
 					break;
 		case CONSTANTS.CUSTOMER_SERVICE_INVOICE:
-			 	HashMap<String, Repair> completedservices=getCompletedServices();
+			 	HashMap<String, Repair> completedservices=getCompletedServices(customer.getcId());
 			
 				choice=view.viewServiceInvoice(completedservices,customer);
 				break;
-			
-					
+		case CONSTANTS.CUSTOMER_SERVICE_SCHEDULE2:
+		 	choice=view.viewSchedule(customer);
+			break;	
+		case CONSTANTS.LOGOUT:
+			customer=null;
+		 	choice=LoginView.displayMainMenu();
+			break;	
+							
 		default:
 			return;
 		}
@@ -125,9 +139,9 @@ public class CustomerController  {
 		controlFlow(choice);
 		
 	}
-	private  HashMap<String, Repair> getCompletedServices() {
+	public  HashMap<String, Repair> getCompletedServices(int id) {
 		 RepairDao repair=new RepairDao();
-		 return repair.getCompletedServices(customer.getcId());
+		 return repair.getCompletedServices(id);
 		
 	}
 	public boolean validateCar(Repair service) {
@@ -205,7 +219,8 @@ public class CustomerController  {
 				emps.add(emp2);
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+//					e.printStackTrace();
+					System.out.println("Validate Dates Failed");
 				}
 			}
 			emps.get(0).setEndTime(EmployeeDao.addHours(emps.get(0).getStartTime(),hours));
@@ -233,7 +248,8 @@ public class CustomerController  {
 		service.setStartTime(employee.getStartTime());
 		service.setEndTime(employee.getEndTime());
 		service.setMechanicId(employee.geteId());
-		calculateFee(service);
+		ArrayList<Invoice> invoice=new  ArrayList<>();
+		calculateFee(service,invoice);
 		EmployeeDao empDao=new EmployeeDao();
 		empDao.updateMechHours(employee.geteId(),hour);
 		
@@ -246,6 +262,8 @@ public class CustomerController  {
 		int rId=rDao.insertRepair(service);
 		service.setrId(rId);
 		rDao.insertSchedule(service);
+		rDao.saveInvoice(service.getrId(),invoice);
+		
 		CustomerDao  cusDao=new CustomerDao();
 		cusDao.updateCustomerService(service.getcId(),service.getBaseServices(),service.getStartTime(),service.getrId(),false);
 		
@@ -272,7 +290,9 @@ public class CustomerController  {
 		service.setStartTime(employee.getStartTime());
 		service.setEndTime(employee.getEndTime());
 		service.setMechanicId(employee.geteId());
-		calculateFee(service);
+		ArrayList<Invoice> invoice=new  ArrayList<>();
+		calculateFee(service,invoice);
+		
 		EmployeeDao empDao=new EmployeeDao();
 		empDao.updateMechHours(employee.geteId(),hour);
 		CarDao carDao=new CarDao();
@@ -284,18 +304,30 @@ public class CustomerController  {
 		service.setrId(rId);
 		rDao.insertSchedule(service);
 		CustomerDao  cusDao=new CustomerDao();
+		rDao.saveInvoice(service.getrId(),invoice);
 		cusDao.updateCustomerService(service.getcId(),service.getBaseServices(),service.getStartTime(),service.getrId(),false);
 		
 		
 	}
-	private void calculateFee(Repair service) {
+	private void calculateFee(Repair service, ArrayList<Invoice> invoice) {
 		float cost=0;
-		boolean warranty=false;
+		
 		for (int i=0;i<service.getBaseServices().size();i++) {
+			boolean warranty=true;
 			BaseService bs=service.getBaseServices().get(i);
 			if (bs.getLastService()==null) {
 				for (int j=0;j<bs.getParts().size();j++) {
+					
 					cost+=bs.getParts().get(j).getUnitPrice()*bs.getParts().get(j).getQuantity();
+					Invoice inv=new Invoice();
+					
+					inv.setPartId(bs.getParts().get(j).getPartID());
+					inv.setCost(bs.getParts().get(j).getUnitPrice()*bs.getParts().get(j).getQuantity());
+					inv.setFirst(true);
+					inv.setWarranty(false);
+					inv.setBid(bs.getbId());
+					invoice.add(inv);
+					
 				}
 			}
 			else {
@@ -306,11 +338,31 @@ public class CustomerController  {
 				for (int j=0;j<bs.getParts().size();j++) {
 					if (bs.getParts().get(j).getWarranty()==0 || diff>bs.getParts().get(j).getWarranty())
 						{ 	
-							warranty=true;
+							warranty=false;
+							
 							cost+=bs.getParts().get(j).getUnitPrice()*bs.getParts().get(j).getQuantity();
+							Invoice inv=new Invoice();
+							
+							inv.setPartId(bs.getParts().get(j).getPartID());
+							inv.setCost(bs.getParts().get(j).getUnitPrice()*bs.getParts().get(j).getQuantity());
+							inv.setFirst(false);
+							inv.setWarranty(false);
+							inv.setBid(bs.getbId());
+							invoice.add(inv);
 						}
-				if (warranty) {
+					else {
+						Invoice inv=new Invoice();
+						
+						inv.setPartId(bs.getParts().get(j).getPartID());
+						inv.setCost(0);
+						inv.setFirst(false);
+						inv.setWarranty(true);
+						inv.setBid(bs.getbId());
+						invoice.add(inv);
+					}
+				if (!warranty) {
 					cost+=bs.getLabourCharge()*bs.getHour();
+					
 				}
 					
 				
@@ -362,9 +414,6 @@ public class CustomerController  {
 		emps.get(1).setEndTime(EmployeeDao.addHours(emps.get(1).getStartTime(),hour));
 		//rDao.checkUpdateDates(hours,service.getCenterId());
 		
-		
-	
-	
 	
 	// TODO Auto-generated method stub
 	return emps;

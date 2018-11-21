@@ -11,7 +11,6 @@ public class Part {
 	int threshold;
 	int warranty;
 	int altcenter;
-	
 	public int getAltcenter() {
 		return altcenter;
 	}
@@ -25,7 +24,6 @@ public class Part {
 		this.warranty = warranty;
 	}
 	int deliveryTime;
-	
 	public int getDeliveryTime() {
 		return deliveryTime;
 	}

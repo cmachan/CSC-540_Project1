@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import constants.CONSTANTS;
+import constants.Utility;
 import controllers.CustomerController;
 import dataAccessObjects.EmployeeDao;
 import models.BaseService;
@@ -18,6 +19,7 @@ import models.Car;
 import models.Customer;
 import models.Employee;
 import models.Fault;
+import models.Invoice;
 import models.Repair;
 import oracle.jdbc.Const;
 
@@ -40,7 +42,7 @@ public class CustomerView {
 		System.out.println("1. Profile");
 		System.out.println("2. Register Car");
 		System.out.println("3. Service");
-		System.out.println("4.  Invoices");
+		System.out.println("4. Invoices");
 		System.out.println("5. Logout");
 		
 		while(true) {
@@ -66,6 +68,9 @@ public class CustomerView {
 			}
 	            
 	        }
+		if (choice==5) {
+			return CONSTANTS.LOGOUT;
+		}
 		
 	
 		return CONSTANTS.CUSTOMER_MAIN_MENU+choice;
@@ -129,8 +134,8 @@ public class CustomerView {
 		for (int i=0;i<customer.getCarsOwned().size();i++) {
 			Car car=customer.getCarsOwned().get(i);
 			
-			System.out.println("Car: "+car.getLicensePlate()+" Make: "+car.getMake()+" Model: "+car.getModel()+" Year: "+car.getMakeYear()+" Date of last Service: "+car.getDateOfService()+" Last Service Type: "+car.getLastServiceType()+" Date of Purchase: "+car.getDateOfPurchase()+" Last recorded Mileage: "+car.getLastMileage());
-			
+			System.out.println("Car: "+car.getLicensePlate()+" ,Make: "+car.getMake()+",Model: "+car.getModel()+" ,Year: "+car.getMakeYear()+" ,Date of last Service: "+car.getDateOfService()+" ,Last Service Type: "+car.getLastServiceType()+" ,Date of Purchase: "+car.getDateOfPurchase()+" Last recorded Mileage: "+car.getLastMileage());
+
 		}
 		System.out.println("\n");
 		System.out.println("--------MENU-------");
@@ -188,32 +193,62 @@ public class CustomerView {
 					
 				}
 				else {
+					String input="";
 					switch(choice) {
 					case 1: 
 						System.out.println("> Enter new Name:  ");
-						System.out.println(">");
+						input="";
+						while(input.equals("")) {
+							input=(console.nextLine()).trim();
+							if (input.equals("")){
+								System.out.println("Error: Name is blank. ");
+							}
+						}
 						
-						customer.setcName((console.nextLine().trim()));
+						customer.setcName(input);
 						break;
 					case 2: 
 						System.out.println("> Enter new Address:  ");
-						System.out.println(">");
-						customer.setAddress((console.nextLine().trim()));
+						input="";
+						while(input.equals("")) {
+							input=(console.nextLine()).trim();
+							if (input.equals("")){
+								System.out.println("Error: Address is blank. ");
+							}
+						}
+						customer.setAddress(input);
 						break;	
 					case 3: 
 						System.out.println("> Enter new Phone Number:  ");
-						System.out.println(">");
-						try {
-						customer.setPhone(Long.parseLong(console.nextLine().trim()));
-						}catch(NumberFormatException e) {
-							System.out.println("< Error: Enter Number only ");
+						input="";
+						while(input.equals("")) {
+							input=(console.nextLine()).trim();
+							
+							if (input.equals("")){
+								System.out.println("Error: Phone Number is blank. ");
+							}else if(!Utility.isValidPhoneNumber(input)) {
+								System.out.println("Error: Phone Number not correct ");
+								input="";
+							}
 						}
+						input=input.replaceAll("-", "");
+						customer.setPhone(Long.parseLong(input.replaceAll("\\.", "")));
 						break;	
 						
 					case 4: 
 						System.out.println("> Enter new Password:  ");
-						System.out.println(">");
-						customer.setPassword((console.nextLine().trim()));
+						input="";
+						while(input.equals("")) {
+						
+							input=(console.nextLine()).trim();
+							
+							if (input.equals("")){
+								System.out.println("Error: Password is blank. ");
+							}
+							
+				
+						}
+						customer.setPassword(input);
 						break;	
 					case 5: 
 						flag=false;
@@ -244,10 +279,11 @@ public class CustomerView {
 		car.setcId(customer.getcId());
 		System.out.println("--------Register Car-------");
 		
+		System.out.println("Enter Cancel to go back");
+		System.out.println("A. Enter Licence Plate ");
 		while(input.equals("")) {
 			
-			System.out.println("Enter Cancel to go back");
-			System.out.println("A. Enter Licence Plate ");
+			
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
@@ -259,10 +295,10 @@ public class CustomerView {
 		}
 		car.setLicensePlate(input);
 		input="";
+		System.out.println("B. Enter Purchase date in format-MM/dd/yyyy ");
 		Date date1=null;
 		while(input.equals("")) {
-			System.out.println("Enter Cancel to go back");
-			System.out.println("B. Enter Purchase date in format-MM/dd/yyyy ");
+			
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
@@ -270,26 +306,29 @@ public class CustomerView {
 			}
 			if (input.equals("")){
 				System.out.println("< Error: Purchase date is mandatory ");
+			}else if (!Utility.isDateValid(input)) {
+				System.out.println("< Error: Date not in correct format ");
+				input="";	
+			}else {
+				try {
+					date1=new SimpleDateFormat("MM/dd/yyyy").parse(input);  
+				   
+					}
+					catch(ParseException e) {
+						System.out.println("< Error: Date not in correct format ");
+						input="";	
+					}
 			}
 			
-			try {
-				date1=new SimpleDateFormat("MM/dd/yyyy").parse(input);  
-			   
-				}
-				catch(ParseException e) {
-					System.out.println("< Error: Date not in correct format ");
-					input="";	
-				}
 		
 		}
 		
 		car.setDateOfPurchase(date1);
 		
 		input="";
-		
+		System.out.println("C. Enter Make of the car(TOYOTA,NISSAN,HONDA) ");
 		while(input.equals("")) {
-			System.out.println("Enter Cancel to go back");
-			System.out.println("C. Enter Make of the car ");
+			
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
@@ -297,36 +336,85 @@ public class CustomerView {
 			}
 			if (input.equals("")){
 				System.out.println("< Error: Make is mandatory ");
+			}else if(!input.equalsIgnoreCase("TOYOTA") && !input.equalsIgnoreCase("NISSAN") && !input.equalsIgnoreCase("HONDA")) {
+				System.out.println("< Error: Make is not correct ");
+				input="";
 			}
 			
 		}
 		
 		car.setMake(input.toUpperCase());
-		
-		input="";
-		
-		while(input.equals("")) {
-			System.out.println("Enter Cancel to go back");
-			System.out.println("D. Enter Model of the car ");
-			System.out.print(">");
-			input=(console.nextLine()).trim();
-			if (input.equalsIgnoreCase("cancel")) {
-				return CONSTANTS.CUSTOMER_MAIN_MENU;
-			}
-			if (input.equals("")){
-				System.out.println("< Error: Model is mandatory ");
+		if (car.getMake().equals("TOYOTA")) {
+			input="";
+			System.out.println("D. Enter Model of the car(Corolla,Prius) ");
+			while(input.equals("")) {
+			
+				System.out.print(">");
+				input=(console.nextLine()).trim();
+				if (input.equalsIgnoreCase("cancel")) {
+					return CONSTANTS.CUSTOMER_MAIN_MENU;
+				}
+				if (input.equals("")){
+					System.out.println("< Error: Model is mandatory ");
+				}else if(!input.equalsIgnoreCase("Corolla") && !input.equalsIgnoreCase("Prius")) {
+					System.out.println("< Error: Model is not correct ");
+					input="";
+				}
+				
 			}
 			
+			car.setModel(input.toUpperCase());
+			
+		}else if (car.getMake().equals("NISSAN")) {
+			input="";
+			System.out.println("D. Enter Model of the car(Altima,Rogue) ");
+			while(input.equals("")) {
+			
+				System.out.print(">");
+				input=(console.nextLine()).trim();
+				if (input.equalsIgnoreCase("cancel")) {
+					return CONSTANTS.CUSTOMER_MAIN_MENU;
+				}
+				if (input.equals("")){
+					System.out.println("< Error: Model is mandatory ");
+				}else if(!input.equalsIgnoreCase("Altima") && !input.equalsIgnoreCase("Rogue")) {
+					System.out.println("< Error: Model is not correct ");
+					input="";
+				}
+				
+			}
+			
+			car.setModel(input.toUpperCase());
+			
+		}else if (car.getMake().equals("HONDA")) {
+			input="";
+			System.out.println("D. Enter Model of the car(Accord,Civic) ");
+			while(input.equals("")) {
+			
+				System.out.print(">");
+				input=(console.nextLine()).trim();
+				if (input.equalsIgnoreCase("cancel")) {
+					return CONSTANTS.CUSTOMER_MAIN_MENU;
+				}
+				if (input.equals("")){
+					System.out.println("< Error: Model is mandatory ");
+				}else if(!input.equalsIgnoreCase("Accord") && !input.equalsIgnoreCase("Civic")) {
+					System.out.println("< Error: Model is not correct ");
+					input="";
+				}
+				
+			}
+			
+			car.setModel(input.toUpperCase());
+			
 		}
-		
-		car.setModel(input.toUpperCase());
 		
 		
 		input="";
 		int year=0;
+		System.out.println("E. Enter Car Model year ");
 		while(input.equals("")) {
-			System.out.println("Enter Cancel to go back");
-			System.out.println("E. Enter Year of the car ");
+	
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
@@ -345,6 +433,7 @@ public class CustomerView {
 			}
 			}catch(NumberFormatException e) {
 				System.out.println("< Error: Year is not correct, should be a number. ");
+				input="";
 			}
 			
 			
@@ -352,12 +441,12 @@ public class CustomerView {
 		
 		car.setMakeYear(year);
 		
-		
+
+		System.out.println("F. Current mileage ");
 		input="";
 		int mileage=0;
 		while(input.equals("")) {
-			System.out.println("Enter Cancel to go back");
-			System.out.println("F. Current mileage ");
+			
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
@@ -370,6 +459,7 @@ public class CustomerView {
 				mileage=Integer.parseInt(input);
 			}catch(NumberFormatException e) {
 				System.out.println("< Error: mileage is not correct, should be a number. ");
+				input="";
 			}
 			
 			
@@ -380,24 +470,35 @@ public class CustomerView {
 		
 		
 		input="";
-			System.out.println("Enter Cancel to go back");
-			System.out.println("G. Last Service Date ");
+		boolean flag=false;
+		
+			System.out.println("G. Last Service Date in MM/dd/yyyy format");
 			System.out.print(">");
+			do {
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
 				return CONSTANTS.CUSTOMER_MAIN_MENU;
 			}
 			if (!input.equals(""))  {
-
-			try {
-				date1=new SimpleDateFormat("MM/dd/yyyy").parse(input);  
-			   
-				}
-				catch(ParseException e) {
+				 if (!Utility.isDateValid(input)) {
 					System.out.println("< Error: Date not in correct format ");
-					input="";	
+					input="";
+					flag=true;
+				}else {
+					try {
+						date1=new SimpleDateFormat("MM/dd/yyyy").parse(input);  
+					   flag=false;
+						}
+						catch(ParseException e) {
+							System.out.println("< Error: Date not in correct format ");
+							input="";	
+							flag=true;
+						}
 				}
 			}
+			}while(flag);
+				
+
 			
 		
 		
@@ -437,8 +538,13 @@ public class CustomerView {
 		
 		
 		if (choice==1) {
-			controller.registerCar(car);
-			System.out.println("Car Registered");
+			if (controller.registerCar(car))
+				{
+				System.out.println("Car Registered");}
+				else {
+					System.out.println("Something Went wrong, try again ");
+					 return CONSTANTS.CUSTOMER_REGISTER_CAR;
+				}
 			
 		}else {
 			System.out.println("Registeration canceled");
@@ -533,17 +639,19 @@ public class CustomerView {
 		return CONSTANTS.CUSTOMER_SERVICE;
 	}
 
-	public String viewServiceSchedule(Customer customer) {
+	public String viewServiceSchedule(Customer customer, int centerID) {
 		int choice=0;
 		String input="";
 		Repair service=new Repair();
-		service.setCenterId(customer.getCenterId());
+		service.setCenterId(centerID);
 		Car car=new Car();
 		service.setcId(customer.getcId());
 		System.out.println("--------Schedule the service -------");
+		System.out.println("Enter Cancel to go back");
+		System.out.println("A. Enter Licence Plate ");
 		while(input.equals("")) {
-			System.out.println("Enter Cancel to go back");
-			System.out.println("A. Enter Licence Plate ");
+			
+			
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
@@ -557,9 +665,9 @@ public class CustomerView {
 		car.setcId(customer.getcId());
 		input="";
 		int mileage=0;
+
+		System.out.println("B. Enter current mileage of the car ");
 		while(input.equals("")) {
-			System.out.println("Enter Cancel to go back");
-			System.out.println("B. Enter current mileage of the car ");
 			System.out.print(">");
 			input=(console.nextLine()).trim();
 			if (input.equalsIgnoreCase("cancel")) {
@@ -582,9 +690,9 @@ public class CustomerView {
 		service.setCar(car);
 		input="";
 		EmployeeDao empDao=new EmployeeDao();
-		ArrayList<Employee> mechanics=empDao.getAllMechanic(customer.getCenterId());
+		ArrayList<Employee> mechanics=empDao.getAllMechanic(service.getCenterId());
 		System.out.println("Enter Cancel to go back");
-		System.out.println("G. Select Mechanic (Enter 1-"+mechanics.size()+"): ");
+		System.out.println("C. Select Mechanic (Enter 1-"+mechanics.size()+"): ");
 		for (int i =0;i<mechanics.size();i++) {
 			
 			System.out.println((i+1) +". "+mechanics.get(i).geteName());
@@ -624,15 +732,18 @@ public class CustomerView {
 			service.setMechanicId(mechanics.get(mechanic-1).geteId());
 		}
 		
+		customer.setService(service);
+		return CONSTANTS.CUSTOMER_SERVICE_SCHEDULE2;
+	}
 		
+	public String viewSchedule(Customer customer) {
 		
-		
+		Repair service=customer.getService();
 		System.out.println("--------MENU-------");
 		System.out.println("1. Schedule Maintenance ");
 		System.out.println("2. Schedule Repair ");
-		
 		System.out.println("3. Go Back ");
-		
+		int choice=0;
 		while(true){
 			try {
 				
@@ -673,7 +784,7 @@ public class CustomerView {
 		return CONSTANTS.CUSTOMER_SERVICE;
 	}
 
-	private void viewScheduleRepair(Repair service, ArrayList<Fault> faults, Customer customer) {
+	private String viewScheduleRepair(Repair service, ArrayList<Fault> faults, Customer customer) {
 		
 		System.out.println("--------Schedule Repair (Page 1)-------");
 		for (int i=0;i<faults.size();i++) {
@@ -710,7 +821,7 @@ public class CustomerView {
 		
 		
 		if (choice==faults.size()+1) {
-			
+			return CONSTANTS.CUSTOMER_SERVICE_SCHEDULE2;
 		}else {
 			
 			if (controller.validateCar(service)) {
@@ -719,16 +830,16 @@ public class CustomerView {
 				controller.getFaultDetails(fault,service.getCar().getCarTypeID(),service.getcId(),service.getCar().getMake());
 				ArrayList<Employee> mechanics=controller.findDates(service,new Date());
 				if (mechanics==null) {
-					viewServiceSchedule(customer);
+					return CONSTANTS.CUSTOMER_SERVICE_SCHEDULE2;
 				}
 				
 				viewScheduleRepair2(service,mechanics,customer,fault);
 			}else {
 				System.out.println("Car not valid Enter again");
-				viewServiceSchedule(customer) ;
+				viewServiceSchedule(customer,customer.getCenterId()) ;
 			}
 			
-			
+			return CONSTANTS.CUSTOMER_SERVICE_SCHEDULE2;
 			
 		}
 		
@@ -815,7 +926,6 @@ public class CustomerView {
 			
 			controller.saveRepair(service,mechanics.get(dateSelected-1),fault);
 			System.out.println("Repair Scheduled");
-			viewServiceSchedule(customer);
 			
 		}else if(choice==2) {
 			ArrayList<Fault> faults=controller.getAllFaults(service);
@@ -825,7 +935,7 @@ public class CustomerView {
 		}
 	}
 
-	private void viewScheduleMaintenance(Repair service, Customer customer) {
+	private String viewScheduleMaintenance(Repair service, Customer customer) {
 		System.out.println("--------Schedule Maintenance (Page 1) -------");
 		System.out.println("1. Find Service Date ");
 		System.out.println("2. Go Back");
@@ -861,24 +971,23 @@ public class CustomerView {
 			if (controller.validateCar(service)) {
 				ArrayList<Employee> mechanics=controller.findDates(service,new Date());
 				if (mechanics==null) {
-					viewServiceSchedule(customer);
+					viewServiceSchedule(customer,customer.getCenterId());
 				}
 				viewScheduleMaintenance2(service,mechanics,customer);
 			}else {
 				System.out.println("Car not valid Enter again");
-				viewServiceSchedule(customer) ;
+				viewServiceSchedule(customer,customer.getCenterId()) ;
 			}
 			
 			
-		}else if(choice==2) {
-			viewServiceSchedule(customer);
-			
-			
 		}
+		return CONSTANTS.CUSTOMER_SERVICE_SCHEDULE2;
+			
+			
 		
 	}
 
-	private void viewScheduleMaintenance2(Repair service, ArrayList<Employee> mechanics, Customer customer) {
+	private String viewScheduleMaintenance2(Repair service, ArrayList<Employee> mechanics, Customer customer) {
 		// TODO Auto-generated method stub
 		System.out.println("--------Schedule Maintenance Page2-------");
 		for (int i=0;i<mechanics.size();i++) {
@@ -946,13 +1055,13 @@ public class CustomerView {
 			
 			controller.saveMaintenance(service,mechanics.get(dateSelected-1));
 			System.out.println("Service scheduled \n\n");
-			viewServiceSchedule(customer);
-			
-		}else if(choice==2) {
-			viewScheduleMaintenance(service,customer);
-			
+			viewServiceSchedule(customer,customer.getCenterId());
 			
 		}
+		return viewScheduleMaintenance(service,customer);
+			
+			
+		
 	}
 
 	public String viewServiceReSchedule(ArrayList<Repair> services, Customer customer) {
@@ -1102,7 +1211,7 @@ public class CustomerView {
 			
 			controller.rescheduleService(selectedRepair,mechanics.get(dateSelected-1));
 			System.out.println("Service rescheduled \n\n");
-			viewServiceSchedule(customer);
+			viewServiceSchedule(customer,customer.getCenterId());
 			
 		}else if(choice==2) {
 			viewServiceReSchedule(services,customer);
@@ -1177,7 +1286,10 @@ public class CustomerView {
 			
 				System.out.println(">");
 				String id = console.nextLine();
-				
+				System.out.println("Enter Cancel to go back");
+				if (id.equalsIgnoreCase("cancel")) {
+					return;
+				}
 			    service=completedservices.get(id);
 			    if( service==null) {
 					
@@ -1202,17 +1314,47 @@ public class CustomerView {
 		System.out.println(" Mechanic Name: "+ service.getMechanicName());
 		System.out.println(" Services: ");
 		int labourwages=0;
+		int count=0;
 		for (int i=0;i<service.getBaseServices().size();i++) {
 			BaseService bs=service.getBaseServices().get(i);
 			System.out.println("	"+bs.getName()+"");
-			labourwages+=bs.getLabourCharge();
-			for (int j=0;j<bs.getParts().size();j++) {
-			System.out.println("			Part Name:"+bs.getParts().get(j).getpName()+" Cost per unit:"+bs.getParts().get(j).getUnitPrice());
+			boolean lb=false;
+			boolean war=false;
+			for (int j=0;j<bs.getInvoice().size();j++) {
+				Invoice inv=bs.getInvoice().get(j);
+				String warr="";
+				if (inv.isWarranty()) {
+					war=true;
+					warr=" Part is with the Warranty"; 		
+				}
+			System.out.println("		Part Name:"+inv.getPartName()+" Cost:"+inv.getCost()+warr);
+			
+
+			if (inv.isFirst()) {
+				lb=true;
 			}
 			
+			
+			}
+		
+			
+			if (lb==true) {
+				
+				System.out.println("		Service was first time provided so No labour charge"); 		
+			}
+			else {
+				if (!war) {
+					count+=1;
+					labourwages+=bs.getLabourCharge();
+					System.out.println("		Labour Charge per hour:"+bs.getLabourCharge()); 
+					System.out.println("		Labour hours:"+bs.getHour()); 
+				}
+			}
+			
+			
 		}
-		labourwages=service.getBaseServices().size()==0?0: labourwages/service.getBaseServices().size();
-		float hours=(float)((service.getEndTime().getTime()-service.getStartTime().getTime())/3600000);
+		labourwages=service.getBaseServices().size()==0?0: labourwages/count;
+		float hours=(float)(service.getEndTime().getTime()-service.getStartTime().getTime())/3600000;
 		System.out.println(" Total labour hours : "+hours );
 		System.out.println(" Labour Wages per hour : "+labourwages );
 		

@@ -45,7 +45,7 @@ public class PayrollDao {
 	void populate() throws Exception{
 		DatabaseUtil db = new DatabaseUtil();
 		db.establishConnection();
-		ArrayList<String> res = db.getAll("EMP_SERVICE", "EID", Integer.toString(this.eId), true);
+		ArrayList<String> res = db.getAll("PAYROLL", "EID", Integer.toString(this.eId), true);
 		
 		if(res.size() == 0)
 			throw new Exception("Object Doesn't exists in the database");
@@ -80,7 +80,7 @@ public class PayrollDao {
 	
 	public void insert() {
 		String qry = "INSERT INTO PAYROLL VALUES(" + eId + ", TO_DATE ('" + startDate + "','YYYY-MM-DD')" + "," + wages + "," + frequency + ")";
-		System.out.println(qry);
+//		System.out.println(qry);
 		DatabaseUtil db = new DatabaseUtil();
 		db.establishConnection();
 		db.runQuery(qry);
